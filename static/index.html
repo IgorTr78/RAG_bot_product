@@ -21,7 +21,6 @@
     --text:      #1A1A2E;
     --muted:     #8C90A0;
     --green:     #00B341;
-    --yellow:    #FF9500;
     --red:       #FF3B30;
     --radius:    12px;
   }
@@ -42,515 +41,268 @@
     background: var(--navy);
     padding: 0 24px;
     height: 56px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
+    display: flex; align-items: center; gap: 14px;
     flex-shrink: 0;
   }
-
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-  }
-
+  .logo { display: flex; align-items: center; gap: 10px; }
   .logo-icon {
-    width: 34px; height: 34px;
-    background: var(--blue);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 17px;
-    flex-shrink: 0;
+    width: 34px; height: 34px; background: var(--blue);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-size: 17px; flex-shrink: 0;
   }
-
-  .logo-text {
-    font-size: 16px;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: -0.01em;
-  }
-
-  .logo-sub {
-    font-size: 11px;
-    color: rgba(255,255,255,0.45);
-    margin-left: 2px;
-    font-weight: 400;
-  }
-
-  .header-divider {
-    width: 1px; height: 20px;
-    background: rgba(255,255,255,0.15);
-    margin: 0 4px;
-  }
-
-  .header-label {
-    font-size: 12px;
-    color: rgba(255,255,255,0.5);
-    font-weight: 400;
-  }
-
+  .logo-text { font-size: 16px; font-weight: 700; color: #fff; letter-spacing: -0.01em; }
+  .logo-sub  { font-size: 11px; color: rgba(255,255,255,0.45); margin-left: 2px; }
+  .header-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.15); margin: 0 4px; }
+  .header-label   { font-size: 12px; color: rgba(255,255,255,0.5); }
   .status {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    color: rgba(255,255,255,0.45);
+    margin-left: auto; display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: rgba(255,255,255,0.45);
   }
-
   .live-dot {
-    width: 6px; height: 6px;
-    background: var(--green);
-    border-radius: 50%;
-    box-shadow: 0 0 6px #00B34188;
+    width: 6px; height: 6px; background: var(--green);
+    border-radius: 50%; box-shadow: 0 0 6px #00B34188;
     animation: pulse 2s infinite;
   }
-
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
 
   /* ── Layout ── */
   .layout {
-    display: flex;
-    width: 100%;
-    max-width: 1000px;
-    flex: 1;
-    overflow: hidden;
-    padding: 16px;
-    gap: 14px;
+    display: flex; width: 100%; max-width: 1000px;
+    flex: 1; overflow: hidden; padding: 16px; gap: 14px;
   }
 
   /* ── Sidebar ── */
   .sidebar {
-    width: 220px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    overflow-y: auto;
+    width: 220px; flex-shrink: 0;
+    display: flex; flex-direction: column; gap: 10px; overflow-y: auto;
   }
-
   .sidebar-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
   }
-
   .sidebar-head {
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--border);
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    padding: 12px 14px; border-bottom: 1px solid var(--border);
+    font-size: 11px; font-weight: 600; color: var(--muted);
+    letter-spacing: 0.06em; text-transform: uppercase;
   }
-
   .sidebar-body { padding: 12px 14px; }
 
-  /* Car saved badge */
+  /* Saved car badge */
   .car-badge {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--blue-soft);
-    border: 1.5px solid var(--blue);
-    border-radius: 8px;
-    padding: 10px 12px;
+    display: flex; align-items: center; gap: 10px;
+    background: var(--blue-soft); border: 1.5px solid var(--blue);
+    border-radius: 8px; padding: 10px 12px;
   }
-
   .car-badge .icon { font-size: 22px; }
   .car-badge .info strong { display: block; font-size: 13px; font-weight: 600; color: var(--navy); }
   .car-badge .info span   { font-size: 11px; color: var(--muted); }
 
-  /* Form fields */
-  .field { margin-bottom: 8px; }
-
-  .field label {
-    display: block;
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--muted);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    margin-bottom: 4px;
+  /* Sidebar picker */
+  .sb-picker { display: flex; flex-direction: column; gap: 10px; }
+  .sb-step-label {
+    font-size: 10px; font-weight: 600; color: var(--muted);
+    letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px;
   }
+  .sb-brand-grid, .sb-model-grid { display: flex; flex-wrap: wrap; gap: 5px; }
 
-  .field input, .field select {
-    width: 100%;
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    padding: 7px 10px;
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    font-size: 12px;
-    outline: none;
-    transition: border-color .2s, box-shadow .2s;
-    -webkit-appearance: none;
-    appearance: none;
+  .sb-brand-btn {
+    padding: 5px 10px; border: 1.5px solid var(--border);
+    border-radius: 20px; background: var(--surface2);
+    color: var(--muted); font-family: 'Inter', sans-serif;
+    font-size: 11px; font-weight: 500; cursor: pointer; transition: all .15s;
   }
-
-  .field input:focus, .field select:focus {
-    border-color: var(--blue);
-    box-shadow: 0 0 0 3px #005BFF18;
+  .sb-brand-btn.active, .sb-brand-btn:hover {
+    border-color: var(--blue); color: var(--blue); background: var(--blue-soft);
   }
-
-  .field input::placeholder { color: var(--muted); }
+  .sb-model-btn {
+    padding: 4px 9px; border: 1.5px solid var(--border);
+    border-radius: 8px; background: var(--surface);
+    color: var(--text); font-family: 'Inter', sans-serif;
+    font-size: 11px; font-weight: 500; cursor: pointer; transition: all .15s;
+  }
+  .sb-model-btn:hover  { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+  .sb-model-btn.selected { border-color: var(--blue); background: var(--blue); color: #fff; }
 
   .btn-primary {
-    width: 100%;
-    padding: 9px;
-    background: var(--blue);
-    border: none;
-    border-radius: 8px;
-    color: #fff;
-    font-family: 'Inter', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background .15s;
-    margin-top: 4px;
+    width: 100%; padding: 9px; background: var(--blue); border: none;
+    border-radius: 8px; color: #fff; font-family: 'Inter', sans-serif;
+    font-size: 12px; font-weight: 600; cursor: pointer; transition: background .15s; margin-top: 4px;
   }
-
   .btn-primary:hover { background: var(--blue-h); }
+  .btn-primary:disabled { background: var(--border); cursor: default; }
 
   .btn-ghost {
-    width: 100%;
-    padding: 7px;
-    background: transparent;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    color: var(--muted);
-    font-family: 'Inter', sans-serif;
-    font-size: 11px;
-    font-weight: 500;
-    cursor: pointer;
-    margin-top: 8px;
+    width: 100%; padding: 7px; background: transparent;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    color: var(--muted); font-family: 'Inter', sans-serif;
+    font-size: 11px; font-weight: 500; cursor: pointer; margin-top: 8px;
     transition: color .15s, border-color .15s;
   }
-
   .btn-ghost:hover { color: var(--text); border-color: var(--blue); }
 
-  /* Info block */
   .info-block { font-size: 11px; color: var(--muted); line-height: 1.8; }
   .info-block strong { color: var(--text); font-weight: 600; }
 
-  /* ── Chat panel ── */
+  /* ── Chat ── */
   .chat-wrap {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    flex: 1; display: flex; flex-direction: column; overflow: hidden;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
   }
-
-  /* Chat header */
   .chat-head {
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px; flex-shrink: 0;
   }
-
   .agent-avatar {
     width: 36px; height: 36px;
     background: linear-gradient(135deg, var(--blue) 0%, #0047CC 100%);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff;
-    font-size: 14px;
-    font-weight: 700;
-    flex-shrink: 0;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 14px; font-weight: 700; flex-shrink: 0;
   }
+  .agent-info strong { display: block; font-size: 13px; font-weight: 600; color: var(--navy); }
+  .agent-info span   { font-size: 11px; color: var(--green); font-weight: 500; }
 
-  .agent-info strong {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--navy);
-  }
-
-  .agent-info span {
-    font-size: 11px;
-    color: var(--green);
-    font-weight: 500;
-  }
-
-  /* Messages */
   #messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
+    flex: 1; overflow-y: auto; padding: 16px;
+    display: flex; flex-direction: column; gap: 12px;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
   }
 
-  .msg {
-    display: flex;
-    gap: 8px;
-    animation: slideUp .2s ease both;
-  }
-
+  .msg { display: flex; gap: 8px; animation: slideUp .2s ease both; }
   @keyframes slideUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-
   .msg.user { flex-direction: row-reverse; }
 
   .avatar {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    font-size: 11px;
-    font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+    font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center;
   }
-
   .msg.bot  .avatar { background: linear-gradient(135deg, var(--blue) 0%, #0047CC 100%); color: #fff; }
   .msg.user .avatar { background: var(--navy); color: #fff; }
 
   .bubble {
-    max-width: 78%;
-    padding: 10px 14px;
-    border-radius: var(--radius);
-    font-size: 13px;
-    line-height: 1.65;
-    word-break: break-word;
+    max-width: 78%; padding: 10px 14px; border-radius: var(--radius);
+    font-size: 13px; line-height: 1.65; word-break: break-word;
   }
+  .msg.bot  .bubble { background: var(--surface2); border: 1px solid var(--border); border-top-left-radius: 3px; color: var(--text); }
+  .msg.user .bubble { background: var(--blue); border-top-right-radius: 3px; color: #fff; }
 
-  .msg.bot  .bubble {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-top-left-radius: 3px;
-    color: var(--text);
-  }
-
-  .msg.user .bubble {
-    background: var(--blue);
-    border-top-right-radius: 3px;
-    color: #fff;
-  }
-
-  /* car context tag */
   .car-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    background: var(--blue-soft);
-    border: 1px solid #C5D8FF;
-    border-radius: 5px;
-    padding: 2px 8px;
-    font-size: 10px;
-    font-weight: 500;
-    color: var(--blue);
-    margin-bottom: 5px;
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--blue-soft); border: 1px solid #C5D8FF;
+    border-radius: 5px; padding: 2px 8px;
+    font-size: 10px; font-weight: 500; color: var(--blue); margin-bottom: 5px;
   }
 
-  /* ── Model picker inside chat ── */
+  /* ── Model picker in chat ── */
   .model-picker {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 14px;
-    max-width: 78%;
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 12px 14px; max-width: 78%;
   }
-
-  .picker-title {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--navy);
-    margin-bottom: 10px;
-  }
-
-  .brand-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    margin-bottom: 10px;
-  }
-
+  .picker-title { font-size: 12px; font-weight: 600; color: var(--navy); margin-bottom: 10px; }
+  .brand-tabs   { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
   .brand-tab {
-    padding: 4px 10px;
-    border: 1.5px solid var(--border);
-    border-radius: 20px;
-    background: var(--surface2);
-    color: var(--muted);
-    font-size: 11px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all .15s;
+    padding: 4px 10px; border: 1.5px solid var(--border); border-radius: 20px;
+    background: var(--surface2); color: var(--muted);
+    font-size: 11px; font-weight: 500; cursor: pointer; transition: all .15s;
   }
-
-  .brand-tab.active,
-  .brand-tab:hover {
-    border-color: var(--blue);
-    color: var(--blue);
-    background: var(--blue-soft);
-  }
-
-  .model-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    min-height: 28px;
-  }
-
+  .brand-tab.active, .brand-tab:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+  .model-list   { display: flex; flex-wrap: wrap; gap: 5px; min-height: 28px; }
   .model-btn {
-    padding: 4px 10px;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    background: var(--surface);
-    color: var(--text);
-    font-size: 11px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all .15s;
+    padding: 4px 10px; border: 1.5px solid var(--border); border-radius: 8px;
+    background: var(--surface); color: var(--text);
+    font-size: 11px; font-weight: 500; cursor: pointer; transition: all .15s;
   }
-
-  .model-btn:hover {
-    border-color: var(--blue);
-    color: var(--blue);
-    background: var(--blue-soft);
-  }
-
-  .model-btn.selected {
-    border-color: var(--blue);
-    background: var(--blue);
-    color: #fff;
-  }
-
+  .model-btn:hover   { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+  .model-btn.selected { border-color: var(--blue); background: var(--blue); color: #fff; }
   .picker-confirm {
-    margin-top: 10px;
-    padding: 7px 16px;
-    background: var(--blue);
-    border: none;
-    border-radius: 8px;
-    color: #fff;
-    font-family: 'Inter', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background .15s;
-    display: none;
+    margin-top: 10px; padding: 7px 16px; background: var(--blue);
+    border: none; border-radius: 8px; color: #fff;
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: background .15s; display: none;
   }
-
   .picker-confirm:hover { background: var(--blue-h); }
   .picker-confirm.visible { display: inline-block; }
 
-  /* typing */
-  .typing .bubble {
-    display: flex;
-    gap: 5px;
-    align-items: center;
-    padding: 13px 16px;
+  /* ── Contact form in chat ── */
+  .contact-form {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 14px; max-width: 90%;
   }
-
-  .tdot {
-    width: 5px; height: 5px;
-    background: var(--muted);
-    border-radius: 50%;
-    animation: blink 1.2s infinite;
+  .contact-form .form-title {
+    font-size: 12px; font-weight: 600; color: var(--navy); margin-bottom: 12px;
   }
-
-  .tdot:nth-child(2) { animation-delay: .2s; }
-  .tdot:nth-child(3) { animation-delay: .4s; }
-
-  @keyframes blink {
-    0%,80%,100% { opacity:.3; transform:scale(.8); }
-    40%          { opacity:1;  transform:scale(1); }
+  .contact-row {
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end;
   }
-
-  /* ── Input area ── */
-  #input-area {
-    padding: 10px 14px 14px;
-    border-top: 1px solid var(--border);
-    flex-shrink: 0;
+  .contact-field {
+    display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 110px;
   }
-
-  .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 9px;
+  .contact-field label {
+    font-size: 10px; font-weight: 600; color: var(--muted);
+    letter-spacing: 0.05em; text-transform: uppercase;
   }
-
-  .chip {
-    font-size: 11px;
-    font-weight: 500;
-    padding: 4px 11px;
-    border: 1.5px solid var(--border);
-    border-radius: 20px;
-    background: var(--surface2);
-    color: var(--muted);
-    cursor: pointer;
-    transition: all .15s;
-    white-space: nowrap;
-  }
-
-  .chip:hover {
-    border-color: var(--blue);
-    color: var(--blue);
-    background: var(--blue-soft);
-  }
-
-  .input-row {
-    display: flex;
-    gap: 8px;
-    align-items: flex-end;
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 8px 10px;
+  .contact-field input {
+    padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 8px;
+    background: var(--surface2); font-family: 'Inter', sans-serif;
+    font-size: 12px; color: var(--text); outline: none;
     transition: border-color .2s, box-shadow .2s;
   }
-
-  .input-row:focus-within {
-    border-color: var(--blue);
-    box-shadow: 0 0 0 3px #005BFF14;
+  .contact-field input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px #005BFF14; }
+  .contact-field input::placeholder { color: var(--muted); }
+  .contact-field input.err { border-color: var(--red); }
+  .contact-or {
+    font-size: 11px; color: var(--muted); font-weight: 500;
+    padding-bottom: 8px; flex-shrink: 0; align-self: flex-end;
   }
+  .contact-submit {
+    padding: 8px 16px; background: var(--blue); border: none; border-radius: 8px;
+    color: #fff; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: background .15s; flex-shrink: 0; align-self: flex-end;
+  }
+  .contact-submit:hover { background: var(--blue-h); }
 
+  /* typing */
+  .typing .bubble { display:flex; gap:5px; align-items:center; padding:13px 16px; }
+  .tdot { width:5px;height:5px;background:var(--muted);border-radius:50%;animation:blink 1.2s infinite; }
+  .tdot:nth-child(2){animation-delay:.2s} .tdot:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+
+  /* ── Input ── */
+  #input-area { padding: 10px 14px 8px; border-top: 1px solid var(--border); flex-shrink: 0; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:9px; }
+  .chip {
+    font-size: 11px; font-weight: 500; padding: 4px 11px;
+    border: 1.5px solid var(--border); border-radius: 20px;
+    background: var(--surface2); color: var(--muted);
+    cursor: pointer; transition: all .15s; white-space: nowrap;
+  }
+  .chip:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+  .input-row {
+    display: flex; gap: 8px; align-items: flex-end;
+    background: var(--surface2); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 8px 10px;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .input-row:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3px #005BFF14; }
   #user-input {
-    flex: 1;
-    background: transparent;
-    border: none; outline: none;
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    line-height: 1.5;
-    resize: none;
-    max-height: 100px;
+    flex: 1; background: transparent; border: none; outline: none;
+    color: var(--text); font-family: 'Inter', sans-serif;
+    font-size: 13px; line-height: 1.5; resize: none; max-height: 100px;
   }
-
   #user-input::placeholder { color: var(--muted); }
-
   #send-btn {
-    width: 34px; height: 34px;
-    background: var(--blue);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    transition: background .15s, transform .1s;
+    width: 34px; height: 34px; background: var(--blue); border: none;
+    border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: background .15s, transform .1s;
   }
-
-  #send-btn:hover   { background: var(--blue-h); }
-  #send-btn:active  { transform: scale(.93); }
+  #send-btn:hover  { background: var(--blue-h); }
+  #send-btn:active { transform: scale(.93); }
   #send-btn:disabled { background: var(--border); cursor: default; }
-  #send-btn svg { width: 15px; height: 15px; fill: #fff; }
+  #send-btn svg { width:15px;height:15px;fill:#fff; }
 
-  .hint {
-    font-size: 10px;
-    color: var(--muted);
-    margin-top: 6px;
-    text-align: center;
+  /* ── Footer ── */
+  footer {
+    width: 100%; text-align: center; padding: 6px 0 8px;
+    font-size: 10px; color: var(--muted); flex-shrink: 0;
   }
 
   @media (max-width: 640px) {
@@ -570,57 +322,44 @@
   </div>
   <div class="header-divider"></div>
   <span class="header-label">Подбор запчастей</span>
-  <div class="status">
-    <div class="live-dot"></div>
-    онлайн
-  </div>
+  <div class="status"><div class="live-dot"></div>онлайн</div>
 </header>
 
 <div class="layout">
 
   <!-- Sidebar -->
   <div class="sidebar">
-
-    <!-- Car form -->
     <div class="sidebar-card">
       <div class="sidebar-head">🚗 Мой автомобиль</div>
       <div class="sidebar-body">
 
-        <div id="car-form">
-          <div class="field">
-            <label>Марка и модель</label>
-            <input id="inp-brand" placeholder="Lada Vesta">
+        <div id="sb-picker-view">
+          <div class="sb-picker">
+            <div>
+              <div class="sb-step-label">Марка</div>
+              <div class="sb-brand-grid" id="sb-brands"></div>
+            </div>
+            <div id="sb-models-wrap" style="display:none">
+              <div class="sb-step-label" style="margin-top:8px">Модель</div>
+              <div class="sb-model-grid" id="sb-models"></div>
+            </div>
+            <button class="btn-primary" id="sb-save-btn" onclick="sbSaveCar()" disabled>Выбрать</button>
           </div>
-          <div class="field">
-            <label>Год выпуска</label>
-            <input id="inp-year" placeholder="2021" type="number" min="1990" max="2026">
-          </div>
-          <div class="field">
-            <label>Объём двигателя</label>
-            <input id="inp-engine" placeholder="1.6">
-          </div>
-          <div class="field">
-            <label>VIN (необязательно)</label>
-            <input id="inp-vin" placeholder="XTA...">
-          </div>
-          <button class="btn-primary" onclick="saveCar()">Сохранить автомобиль</button>
         </div>
 
-        <div id="car-saved" style="display:none">
+        <div id="sb-saved-view" style="display:none">
           <div class="car-badge">
             <span class="icon">🚗</span>
             <div class="info">
-              <strong id="car-main"></strong>
-              <span id="car-sub"></span>
+              <strong id="sb-car-main"></strong>
             </div>
           </div>
-          <button class="btn-ghost" onclick="clearCar()">Изменить</button>
+          <button class="btn-ghost" onclick="sbClearCar()">Изменить</button>
         </div>
 
       </div>
     </div>
 
-    <!-- Shop info -->
     <div class="sidebar-card">
       <div class="sidebar-head">🏪 Магазин</div>
       <div class="sidebar-body">
@@ -633,12 +372,10 @@
         </div>
       </div>
     </div>
-
   </div>
 
   <!-- Chat -->
   <div class="chat-wrap">
-
     <div class="chat-head">
       <div class="agent-avatar">А</div>
       <div class="agent-info">
@@ -650,7 +387,7 @@
     <div id="messages">
       <div class="msg bot">
         <div class="avatar">А</div>
-        <div class="bubble">Добрый день! Меня зовут Александр, я помогу тебе с подбором! 👋<br><br>Укажи данные своего автомобиля слева — и я сразу проверю совместимость. Или просто спрашивай, что нужно, и мы разберёмся вместе.<br><br>Например: «Масляный фильтр», «Тормозные колодки для Kia», «Есть свечи?»</div>
+        <div class="bubble">Добрый день! Меня зовут Александр, я помогу тебе с подбором! 👋<br><br>Выбери свой автомобиль слева — и я сразу проверю совместимость. Или просто спрашивай, что нужно.<br><br>Например: «Масляный фильтр», «Тормозные колодки для Kia», «Есть свечи?»</div>
       </div>
     </div>
 
@@ -668,50 +405,87 @@
           <svg viewBox="0 0 24 24"><path d="M2 21L23 12 2 3v7l15 2-15 2v7z"/></svg>
         </button>
       </div>
-      <div class="hint">Shift+Enter — отправить</div>
     </div>
   </div>
 
 </div>
 
-<script>
-let car = null;
+<footer>Shift+Enter — отправить · АвтоСклад © 2025</footer>
 
-// ── Популярные марки и модели ──
+<script>
 const BRANDS = {
-  'Lada':    ['Vesta 1.6', 'Granta 1.6', 'Largus 1.6', 'Niva 1.7', 'XRAY 1.6'],
-  'Kia':     ['Rio III 1.6', 'Sportage III 2.0', 'Ceed II 1.4', 'Sorento II 2.4', 'Soul I 1.6'],
-  'Hyundai': ['Solaris I 1.6', 'Solaris II 1.4', 'Creta 1.6', 'Tucson III 2.0', 'Elantra V 1.8'],
-  'Toyota':  ['Camry VII 2.5', 'Corolla X 1.6', 'RAV4 IV 2.0', 'Land Cruiser 200 4.5'],
-  'Volkswagen': ['Polo V 1.6', 'Passat B7 1.8', 'Tiguan II 1.4', 'Golf VI 1.4'],
-  'Другое':  ['Введу сам'],
+  'Lada':       ['Vesta 1.6','Granta 1.6','Largus 1.6','Niva 1.7','XRAY 1.6'],
+  'Kia':        ['Rio III 1.6','Sportage III 2.0','Ceed II 1.4','Sorento II 2.4','Soul I 1.6'],
+  'Hyundai':    ['Solaris I 1.6','Solaris II 1.4','Creta 1.6','Tucson III 2.0','Elantra V 1.8'],
+  'Toyota':     ['Camry VII 2.5','Corolla X 1.6','RAV4 IV 2.0','Land Cruiser 200 4.5'],
+  'Volkswagen': ['Polo V 1.6','Passat B7 1.8','Tiguan II 1.4','Golf VI 1.4'],
+  'Renault':    ['Logan II 1.6','Sandero II 1.6','Duster I 2.0','Megane III 1.5'],
+  'Nissan':     ['Qashqai II 2.0','X-Trail T32 2.0','Almera G15 1.6','Teana L33 2.5'],
+  'Skoda':      ['Octavia A7 1.8','Rapid I 1.6','Superb III 1.8','Kodiaq 2.0'],
 };
 
-// Pending query — сохраняем запрос пока ждём выбор модели
-let pendingQuery = null;
+let car            = null;
+let pendingQuery   = null;
+let awaitingContact = false;
+let awaitingModel   = false;
+let lastTopic       = '';
 
-function saveCar() {
-  const brand  = document.getElementById('inp-brand').value.trim();
-  const year   = document.getElementById('inp-year').value.trim();
-  const engine = document.getElementById('inp-engine').value.trim();
-  const vin    = document.getElementById('inp-vin').value.trim();
+// ── Sidebar picker ──
+let sbBrand = null, sbModel = null;
 
-  if (!brand) { alert('Укажи марку и модель автомобиля'); return; }
-
-  car = { brand_model: brand || null, year: year || null, engine: engine || null, vin: vin || null };
-
-  document.getElementById('car-main').textContent = brand;
-  document.getElementById('car-sub').textContent  = [year, engine ? engine + ' л' : ''].filter(Boolean).join(' · ');
-  document.getElementById('car-form').style.display  = 'none';
-  document.getElementById('car-saved').style.display = 'block';
+function sbInit() {
+  const el = document.getElementById('sb-brands');
+  Object.keys(BRANDS).forEach(b => {
+    const btn = document.createElement('button');
+    btn.className = 'sb-brand-btn';
+    btn.textContent = b;
+    btn.onclick = () => sbSelectBrand(b);
+    el.appendChild(btn);
+  });
 }
 
-function clearCar() {
-  car = null;
-  document.getElementById('car-form').style.display  = 'block';
-  document.getElementById('car-saved').style.display = 'none';
+function sbSelectBrand(brand) {
+  sbBrand = brand; sbModel = null;
+  document.getElementById('sb-save-btn').disabled = true;
+  document.querySelectorAll('.sb-brand-btn').forEach(b => b.classList.toggle('active', b.textContent === brand));
+
+  const wrap = document.getElementById('sb-models-wrap');
+  const el   = document.getElementById('sb-models');
+  wrap.style.display = 'block'; el.innerHTML = '';
+  BRANDS[brand].forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'sb-model-btn'; btn.textContent = m;
+    btn.onclick = () => {
+      sbModel = m;
+      document.querySelectorAll('.sb-model-btn').forEach(x => x.classList.remove('selected'));
+      btn.classList.add('selected');
+      document.getElementById('sb-save-btn').disabled = false;
+    };
+    el.appendChild(btn);
+  });
 }
 
+function sbSaveCar() {
+  if (!sbBrand || !sbModel) return;
+  const full = `${sbBrand} ${sbModel}`;
+  car = { brand_model: full, year: null, engine: null, vin: null };
+  document.getElementById('sb-car-main').textContent = full;
+  document.getElementById('sb-picker-view').style.display = 'none';
+  document.getElementById('sb-saved-view').style.display  = 'block';
+}
+
+function sbClearCar() {
+  car = null; sbBrand = null; sbModel = null;
+  document.getElementById('sb-picker-view').style.display = 'block';
+  document.getElementById('sb-saved-view').style.display  = 'none';
+  document.getElementById('sb-models-wrap').style.display = 'none';
+  document.getElementById('sb-save-btn').disabled = true;
+  document.querySelectorAll('.sb-brand-btn').forEach(b => b.classList.remove('active'));
+}
+
+sbInit();
+
+// ── Chat helpers ──
 const msgs   = document.getElementById('messages');
 const inp    = document.getElementById('user-input');
 const btnSnd = document.getElementById('send-btn');
@@ -719,22 +493,17 @@ const btnSnd = document.getElementById('send-btn');
 function fill(chip) { inp.value = chip.textContent; inp.focus(); }
 
 function esc(s) {
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\n/g,'<br>');
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
 }
 
 function addMsg(role, text, carTag) {
   const d = document.createElement('div');
   d.className = `msg ${role}`;
   let inner = '';
-  if (role === 'user' && carTag) {
-    inner += `<div class="car-tag">🚗 ${esc(carTag)}</div><br>`;
-  }
+  if (role === 'user' && carTag) inner += `<div class="car-tag">🚗 ${esc(carTag)}</div><br>`;
   inner += esc(text);
-  d.innerHTML = `<div class="avatar">${role === 'user' ? 'ВЫ' : 'А'}</div><div class="bubble">${inner}</div>`;
-  msgs.appendChild(d);
-  msgs.scrollTop = msgs.scrollHeight;
+  d.innerHTML = `<div class="avatar">${role==='user'?'ВЫ':'А'}</div><div class="bubble">${inner}</div>`;
+  msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
   return d;
 }
 
@@ -742,173 +511,201 @@ function addTyping() {
   const d = document.createElement('div');
   d.className = 'msg bot typing'; d.id = 'typing';
   d.innerHTML = `<div class="avatar">А</div><div class="bubble"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></div>`;
-  msgs.appendChild(d);
-  msgs.scrollTop = msgs.scrollHeight;
+  msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
 }
-
 function rmTyping() { document.getElementById('typing')?.remove(); }
 
-// ── Model picker ──
-function showModelPicker(query) {
+// ── Model picker in chat ──
+function showModelPicker(query, title) {
   pendingQuery = query;
+  const pickerTitle = title || 'Для какого автомобиля ищем?';
 
   const wrapper = document.createElement('div');
-  wrapper.className = 'msg bot';
-  wrapper.id = 'model-picker-msg';
-
+  wrapper.className = 'msg bot'; wrapper.id = 'model-picker-msg';
   const avatar = document.createElement('div');
-  avatar.className = 'avatar';
-  avatar.textContent = 'А';
-
+  avatar.className = 'avatar'; avatar.textContent = 'А';
   const picker = document.createElement('div');
   picker.className = 'model-picker';
 
-  let selectedBrand = Object.keys(BRANDS)[0];
-  let selectedModel = null;
+  let selBrand = Object.keys(BRANDS)[0], selModel = null;
 
   function render() {
     picker.innerHTML = `
-      <div class="picker-title">Для какого автомобиля ищем?</div>
+      <div class="picker-title">${pickerTitle}</div>
       <div class="brand-tabs">
-        ${Object.keys(BRANDS).map(b =>
-          `<div class="brand-tab${b === selectedBrand ? ' active' : ''}" data-brand="${b}">${b}</div>`
-        ).join('')}
+        ${Object.keys(BRANDS).map(b=>`<div class="brand-tab${b===selBrand?' active':''}" data-brand="${b}">${b}</div>`).join('')}
       </div>
       <div class="model-list">
-        ${BRANDS[selectedBrand].map(m =>
-          `<button class="model-btn${m === selectedModel ? ' selected' : ''}" data-model="${m}">${m}</button>`
-        ).join('')}
+        ${BRANDS[selBrand].map(m=>`<button class="model-btn${m===selModel?' selected':''}" data-model="${m}">${m}</button>`).join('')}
       </div>
-      <button class="picker-confirm${selectedModel ? ' visible' : ''}" id="picker-ok">
-        Искать для ${selectedBrand} ${selectedModel || ''}
-      </button>
+      <button class="picker-confirm${selModel?' visible':''}" id="picker-ok">Искать для ${selBrand} ${selModel||''}</button>
     `;
-
-    picker.querySelectorAll('.brand-tab').forEach(tab => {
-      tab.onclick = () => {
-        selectedBrand = tab.dataset.brand;
-        selectedModel = null;
-        render();
-      };
-    });
-
-    picker.querySelectorAll('.model-btn').forEach(btn => {
-      btn.onclick = () => {
-        selectedModel = btn.dataset.model;
-        render();
-        if (selectedBrand === 'Другое') {
-          // If "Другое" - let user type manually
-          confirmPick(selectedBrand, selectedModel);
-        }
-      };
-    });
-
-    const okBtn = picker.querySelector('#picker-ok');
-    if (okBtn) {
-      okBtn.onclick = () => confirmPick(selectedBrand, selectedModel);
-    }
+    picker.querySelectorAll('.brand-tab').forEach(t => { t.onclick = () => { selBrand=t.dataset.brand; selModel=null; render(); }; });
+    picker.querySelectorAll('.model-btn').forEach(b => { b.onclick = () => { selModel=b.dataset.model; render(); }; });
+    const ok = picker.querySelector('#picker-ok');
+    if (ok) ok.onclick = () => confirmPick(selBrand, selModel);
   }
 
   render();
-  wrapper.appendChild(avatar);
-  wrapper.appendChild(picker);
-  msgs.appendChild(wrapper);
-  msgs.scrollTop = msgs.scrollHeight;
+  wrapper.appendChild(avatar); wrapper.appendChild(picker);
+  msgs.appendChild(wrapper); msgs.scrollTop = msgs.scrollHeight;
 }
 
 function confirmPick(brand, model) {
-  // Remove picker
   document.getElementById('model-picker-msg')?.remove();
-
-  // Set car context
-  const fullModel = model === 'Введу сам' ? brand : `${brand} ${model}`;
-  car = { brand_model: fullModel, year: null, engine: null, vin: null };
-
-  // Update sidebar
-  document.getElementById('inp-brand').value = fullModel;
-  document.getElementById('car-main').textContent = fullModel;
-  document.getElementById('car-sub').textContent  = '';
-  document.getElementById('car-form').style.display  = 'none';
-  document.getElementById('car-saved').style.display = 'block';
-
-  // Show confirmation as bot message
-  addMsg('bot', `Отлично, ищу для ${fullModel}! Секунду...`);
-
-  // Now send the pending query
-  if (pendingQuery) {
-    const q = pendingQuery;
-    pendingQuery = null;
-    sendToApi(q);
-  }
+  const full = `${brand} ${model}`;
+  car = { brand_model: full, year: null, engine: null, vin: null };
+  document.getElementById('sb-car-main').textContent = full;
+  document.getElementById('sb-picker-view').style.display = 'none';
+  document.getElementById('sb-saved-view').style.display  = 'block';
+  addMsg('bot', `Отлично, ищу для ${full}! Секунду...`);
+  if (pendingQuery) { const q = pendingQuery; pendingQuery = null; sendToApi(q); }
 }
 
+// ── Contact form ──
+function showContactForm() {
+  awaitingContact = false;
+  const wrapper = document.createElement('div');
+  wrapper.className = 'msg bot'; wrapper.id = 'contact-form-msg';
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar'; avatar.textContent = 'А';
+  const form = document.createElement('div');
+  form.className = 'contact-form';
+  form.innerHTML = `
+    <div class="form-title">Оставь контакты — свяжемся как можно скорее:</div>
+    <div class="contact-row">
+      <div class="contact-field">
+        <label>Имя *</label>
+        <input id="cf-name" placeholder="Как вас зовут?">
+      </div>
+      <div class="contact-field">
+        <label>Телефон</label>
+        <input id="cf-phone" placeholder="+7 (___) ___-__-__" type="tel">
+      </div>
+      <div class="contact-or">или</div>
+      <div class="contact-field">
+        <label>E-mail</label>
+        <input id="cf-email" placeholder="mail@example.com" type="email">
+      </div>
+      <button class="contact-submit" onclick="submitContact()">Отправить</button>
+    </div>
+  `;
+  wrapper.appendChild(avatar); wrapper.appendChild(form);
+  msgs.appendChild(wrapper); msgs.scrollTop = msgs.scrollHeight;
+}
+
+async function submitContact() {
+  const name  = document.getElementById('cf-name')?.value.trim();
+  const phone = document.getElementById('cf-phone')?.value.trim();
+  const email = document.getElementById('cf-email')?.value.trim();
+
+  document.getElementById('cf-name')?.classList.remove('err');
+  document.getElementById('cf-phone')?.classList.remove('err');
+  document.getElementById('cf-email')?.classList.remove('err');
+
+  if (!name) { document.getElementById('cf-name').classList.add('err'); return; }
+  if (!phone && !email) {
+    document.getElementById('cf-phone').classList.add('err');
+    document.getElementById('cf-email').classList.add('err');
+    return;
+  }
+
+  document.getElementById('contact-form-msg')?.remove();
+
+  try {
+    await fetch('/contacts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, phone: phone||null, email: email||null, topic: lastTopic })
+    });
+  } catch(e) { console.warn('Contact save error:', e); }
+
+  addMsg('bot', `Спасибо, ${name}! Передам коллегам — скоро свяжемся. Если что-то ещё нужно — спрашивай.`);
+}
+
+// ── Intent helpers ──
+function isProductQuery(text) {
+  const kw = ['фильтр','колодки','свечи','масло','ремень','помпа','стойка','рычаг',
+    'наконечник','амортизатор','диск','термостат','радиатор','генератор','стартер',
+    'насос','прокладка','подшипник','сальник','запчасть','деталь','есть','цена',
+    'стоит','найди','покажи','подбери'];
+  const lower = text.toLowerCase();
+  return kw.some(k => lower.includes(k));
+}
+
+function isAffirmative(text) {
+  const kw = ['да','давай','ок','окей','хочу','конечно','угу','ага','поищи','найди','покажи','можно'];
+  return kw.some(k => text.toLowerCase().trim().includes(k));
+}
+
+// ── Main send ──
 async function send() {
   const text = inp.value.trim();
   if (!text) return;
+  inp.value = ''; inp.style.height = 'auto';
 
-  inp.value = '';
-  inp.style.height = 'auto';
-
-  let carTag = null;
-  if (car && car.brand_model) {
-    carTag = [car.brand_model, car.year, car.engine ? car.engine + ' л' : ''].filter(Boolean).join(' · ');
-  }
-
+  const carTag = car?.brand_model || null;
   addMsg('user', text, carTag);
 
-  // Detect product queries — if no car set, ask for model
-  const productQuery = isProductQuery(text);
-  if (productQuery && !car) {
+  // Awaiting model change
+  if (awaitingModel) {
+    awaitingModel = false;
+    if (isAffirmative(text)) { showModelPicker(lastTopic, 'Выбери другую модель:'); return; }
+  }
+
+  // Awaiting contact
+  if (awaitingContact) {
+    if (isAffirmative(text)) { showContactForm(); return; }
+    awaitingContact = false;
+  }
+
+  // Product query without car
+  if (isProductQuery(text) && !car) {
+    lastTopic = text;
     showModelPicker(text);
     return;
   }
 
+  lastTopic = text;
   btnSnd.disabled = true;
   await sendToApi(text);
   btnSnd.disabled = false;
   inp.focus();
 }
 
-function isProductQuery(text) {
-  const productKeywords = [
-    'фильтр','колодки','свечи','масло','ремень','помпа','стойка','рычаг',
-    'наконечник','амортизатор','диск','колодка','термостат','радиатор',
-    'генератор','стартер','насос','прокладка','подшипник','сальник',
-    'запчасть','деталь','есть','цена','стоит','найди','покажи','подбери'
-  ];
-  const lower = text.toLowerCase();
-  return productKeywords.some(kw => lower.includes(kw));
-}
-
 async function sendToApi(text) {
-  addTyping();
-  btnSnd.disabled = true;
-
+  addTyping(); btnSnd.disabled = true;
   try {
     const res  = await fetch('/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ message: text, car })
     });
     const data = await res.json();
     rmTyping();
-    addMsg('bot', res.ok ? data.answer : ('⚠️ ' + (data.detail || 'Ошибка сервера')));
+    const answer = res.ok ? data.answer : ('⚠️ ' + (data.detail||'Ошибка сервера'));
+    addMsg('bot', answer);
+
+    // Trigger model change offer
+    if (answer.includes('ничего нет') || answer.includes('нет в наличии') || answer.includes('нет в прайсе')) {
+      awaitingModel = true;
+    }
+    // Trigger contact form offer
+    if (answer.includes('оставь') || answer.includes('контакт')) {
+      awaitingContact = true;
+    }
   } catch {
     rmTyping();
     addMsg('bot', '⚠️ Нет связи с сервером. Попробуй чуть позже.');
   }
-
-  btnSnd.disabled = false;
-  inp.focus();
+  btnSnd.disabled = false; inp.focus();
 }
 
 inp.addEventListener('input', () => {
   inp.style.height = 'auto';
   inp.style.height = Math.min(inp.scrollHeight, 100) + 'px';
 });
-
 inp.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && e.shiftKey) { e.preventDefault(); send(); }
+  if (e.key==='Enter' && e.shiftKey) { e.preventDefault(); send(); }
 });
 </script>
 </body>
