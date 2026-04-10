@@ -5,14 +5,19 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import Optional
 from dotenv import load_dotenv
+from supabase import create_client, Client
 from rag import search_and_answer
 from loader import load_price_to_supabase
 
 load_dotenv()
 
 app = FastAPI(title="АвтоСклад — RAG Bot")
-
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+supabase: Client = create_client(
+    os.getenv("SUPABASE_URL"),
+    os.getenv("SUPABASE_KEY")
+)
 
 
 class CarInfo(BaseModel):
@@ -27,9 +32,16 @@ class ChatRequest(BaseModel):
     car: Optional[CarInfo] = None
 
 
+class ContactRequest(BaseModel):
+    name:  str
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    topic: Optional[str] = None
+
+
 class LoadRequest(BaseModel):
     secret:     str
-    yandex_url: Optional[str] = None  # можно передать другую ссылку
+    yandex_url: Optional[str] = None
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -47,13 +59,27 @@ async def chat(req: ChatRequest):
     return {"answer": answer}
 
 
+@app.post("/contacts")
+async def save_contact(req: ContactRequest):
+    """Сохраняет контакт из чат-бота в Supabase."""
+    if not req.name.strip():
+        raise HTTPException(status_code=400, detail="Имя обязательно")
+    if not req.phone and not req.email:
+        raise HTTPException(status_code=400, detail="Нужен телефон или email")
+    try:
+        supabase.table("chat_contacts").insert({
+            "name":  req.name.strip(),
+            "phone": req.phone.strip() if req.phone else None,
+            "email": req.email.strip() if req.email else None,
+            "topic": req.topic.strip() if req.topic else None,
+        }).execute()
+        return {"status": "ok"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.post("/admin/load")
 async def load_price(req: LoadRequest):
-    """
-    Загружает прайс в Supabase.
-    Источник: Яндекс Диск (из env YANDEX_DISK_URL или из req.yandex_url).
-    Fallback: w_doc/price.xlsx
-    """
     admin_secret = os.getenv("ADMIN_SECRET", "change-me-please")
     if req.secret != admin_secret:
         raise HTTPException(status_code=403, detail="Неверный секрет")
