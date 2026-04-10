@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>АвтоСклад — Поиск запчастей</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0f0f10;
+    --surface:  #17171a;
+    --surface2: #1e1e23;
+    --border:   #2a2a30;
+    --accent:   #e8401a;   /* фирменный красный — авто тематика */
+    --accent-h: #ff5533;
+    --blue:     #5b7fff;
+    --green:    #4ade80;
+    --yellow:   #fbbf24;
+    --text:     #e8e8ec;
+    --muted:    #6b6b78;
+    --radius:   12px;
+  }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Header ── */
+  header {
+    width: 100%;
+    max-width: 820px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+
+  .header-text h1 {
+    font-size: 14px; font-weight: 500; letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .header-text p { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .status {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .live-dot {
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 6px #4ade80bb;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* ── Layout ── */
+  .layout {
+    display: flex;
+    width: 100%;
+    max-width: 820px;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── Car sidebar ── */
+  .sidebar {
+    width: 210px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .sidebar-section {
+    padding: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-label {
+    font-size: 9px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  /* Car saved badge */
+  .car-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 10px 10px;
+  }
+
+  .car-badge .icon { font-size: 20px; }
+  .car-badge .info strong { display: block; font-size: 12px; font-weight: 500; }
+  .car-badge .info span   { font-size: 11px; color: var(--muted); }
+
+  /* Form fields */
+  .field { margin-bottom: 8px; }
+
+  .field label {
+    display: block;
+    font-size: 9px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--muted);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .field input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 7px 9px;
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 12px;
+    outline: none;
+    transition: border-color .2s;
+  }
+
+  .field input:focus { border-color: var(--accent); }
+  .field input::placeholder { color: var(--muted); }
+
+  .btn-primary {
+    width: 100%;
+    padding: 8px;
+    background: var(--accent);
+    border: none; border-radius: 7px;
+    color: #fff;
+    font-size: 12px; font-weight: 500;
+    cursor: pointer;
+    transition: background .15s;
+    margin-top: 4px;
+  }
+
+  .btn-primary:hover { background: var(--accent-h); }
+
+  .btn-ghost {
+    width: 100%;
+    padding: 7px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--muted);
+    font-size: 11px;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: color .15s, border-color .15s;
+  }
+
+  .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+
+  /* Info block in sidebar */
+  .info-block { font-size: 11px; color: var(--muted); line-height: 1.7; }
+  .info-block strong { color: var(--text); font-weight: 500; }
+
+  /* ── Chat ── */
+  .chat-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .msg {
+    display: flex;
+    gap: 8px;
+    animation: up .22s ease both;
+  }
+
+  @keyframes up { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+  .msg.user { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    flex-shrink: 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .msg.bot  .avatar { background: var(--surface2); color: var(--accent); }
+  .msg.user .avatar { background: #2a1a14; color: #ff8866; }
+
+  .bubble {
+    max-width: 82%;
+    padding: 10px 13px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .msg.bot  .bubble { background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 3px; }
+  .msg.user .bubble { background: #1e1410; border: 1px solid #3a2218; border-bottom-right-radius: 3px; color: #e8c8b8; }
+
+  /* car context tag */
+  .car-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #1e1410;
+    border: 1px solid #3a2218;
+    border-radius: 5px;
+    padding: 2px 7px;
+    font-size: 10px;
+    color: #cc7755;
+    margin-bottom: 5px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* availability badges */
+  .avail-много  { color: var(--green); }
+  .avail-есть   { color: var(--blue); }
+  .avail-мало   { color: var(--yellow); }
+
+  /* typing */
+  .typing .bubble { display:flex; gap:5px; align-items:center; padding:13px 16px; }
+  .tdot { width:5px;height:5px;background:var(--muted);border-radius:50%;animation:blink 1.2s infinite; }
+  .tdot:nth-child(2){animation-delay:.2s} .tdot:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+
+  /* ── Input ── */
+  #input-area {
+    padding: 10px 14px 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:9px; }
+
+  .chip {
+    font-size: 11px;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    transition: border-color .15s, color .15s;
+    white-space: nowrap;
+  }
+
+  .chip:hover { border-color: var(--accent); color: var(--text); }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+    transition: border-color .2s;
+  }
+
+  .input-row:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px #e8401a18; }
+
+  #user-input {
+    flex: 1;
+    background: transparent;
+    border: none; outline: none;
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: none;
+    max-height: 100px;
+  }
+
+  #user-input::placeholder { color: var(--muted); }
+
+  #send-btn {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border: none; border-radius: 8px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background .15s, transform .1s;
+  }
+
+  #send-btn:hover   { background: var(--accent-h); }
+  #send-btn:active  { transform: scale(.93); }
+  #send-btn:disabled { background: var(--border); cursor: default; }
+  #send-btn svg { width:15px;height:15px;fill:#fff; }
+
+  .hint { font-size:10px;color:var(--muted);margin-top:6px;text-align:center;font-family:'IBM Plex Mono',monospace; }
+
+  @media (max-width:580px) {
+    .sidebar { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🔧</div>
+  <div class="header-text">
+    <h1>АвтоСклад</h1>
+    <p>Поиск по прайсу · Проверка совместимости · Москва</p>
+  </div>
+  <div class="status"><div class="live-dot"></div>online</div>
+</header>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+
+    <!-- Car form -->
+    <div class="sidebar-section">
+      <div class="section-label">🚗 Мой автомобиль</div>
+
+      <div id="car-form">
+        <div class="field"><label>Марка и модель</label><input id="inp-brand" placeholder="Lada Vesta"></div>
+        <div class="field"><label>Год выпуска</label><input id="inp-year" placeholder="2021"></div>
+        <div class="field"><label>Объём двигателя</label><input id="inp-engine" placeholder="1.6"></div>
+        <div class="field"><label>VIN (необязательно)</label><input id="inp-vin" placeholder="XTA..."></div>
+        <button class="btn-primary" onclick="saveCar()">Сохранить</button>
+      </div>
+
+      <div id="car-saved" style="display:none">
+        <div class="car-badge">
+          <span class="icon">🚗</span>
+          <div class="info">
+            <strong id="car-main"></strong>
+            <span id="car-sub"></span>
+          </div>
+        </div>
+        <button class="btn-ghost" onclick="clearCar()">Изменить</button>
+      </div>
+    </div>
+
+    <!-- Shop info -->
+    <div class="sidebar-section">
+      <div class="section-label">🏪 Магазин</div>
+      <div class="info-block">
+        <strong>ООО «АвтоСклад»</strong><br>
+        Пн–Пт: 09:00–20:00<br>
+        Сб: 10:00–18:00<br>
+        Вс: выходной<br><br>
+        <strong>5 пунктов выдачи</strong><br>
+        Ленина 10 · Мира 45<br>
+        Тверская 18 · Профсоюзная 72<br>
+        Кутузовский 33
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Chat -->
+  <div class="chat-wrap">
+    <div id="messages">
+      <div class="msg bot">
+        <div class="avatar">AS</div>
+        <div class="bubble">Добро пожаловать в АвтоСклад! 👋
+
+Укажи данные своего автомобиля слева — и я проверю, подходит ли запчасть именно к твоей машине.
+
+Спрашивай: «Есть масляный фильтр для Lada Vesta 1.6?», «Тормозные колодки Kia Rio», «Цена на свечи»…</div>
+      </div>
+    </div>
+
+    <div id="input-area">
+      <div class="chips">
+        <span class="chip" onclick="fill(this)">Масляный фильтр</span>
+        <span class="chip" onclick="fill(this)">Тормозные колодки</span>
+        <span class="chip" onclick="fill(this)">Свечи зажигания</span>
+        <span class="chip" onclick="fill(this)">Воздушный фильтр</span>
+        <span class="chip" onclick="fill(this)">Часы работы</span>
+      </div>
+      <div class="input-row">
+        <textarea id="user-input" rows="1" placeholder="Введите запрос..." maxlength="500"></textarea>
+        <button id="send-btn" onclick="send()" title="Отправить">
+          <svg viewBox="0 0 24 24"><path d="M2 21L23 12 2 3v7l15 2-15 2v7z"/></svg>
+        </button>
+      </div>
+      <div class="hint">Shift+Enter — отправить · Enter — новая строка</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let car = null;
+
+function saveCar() {
+  const brand  = document.getElementById('inp-brand').value.trim();
+  const year   = document.getElementById('inp-year').value.trim();
+  const engine = document.getElementById('inp-engine').value.trim();
+  const vin    = document.getElementById('inp-vin').value.trim();
+
+  if (!brand && !year) { alert('Укажи марку/модель или год'); return; }
+
+  car = { brand_model: brand||null, year: year||null, engine: engine||null, vin: vin||null };
+
+  document.getElementById('car-main').textContent = brand || 'Авто';
+  document.getElementById('car-sub').textContent  = [year, engine ? engine+'л' : ''].filter(Boolean).join(' · ');
+
+  document.getElementById('car-form').style.display  = 'none';
+  document.getElementById('car-saved').style.display = 'block';
+}
+
+function clearCar() {
+  car = null;
+  document.getElementById('car-form').style.display  = 'block';
+  document.getElementById('car-saved').style.display = 'none';
+}
+
+const msgs   = document.getElementById('messages');
+const inp    = document.getElementById('user-input');
+const btnSnd = document.getElementById('send-btn');
+
+function fill(chip) { inp.value = chip.textContent; inp.focus(); }
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\n/g,'<br>');
+}
+
+function addMsg(role, text, carTag) {
+  const d = document.createElement('div');
+  d.className = `msg ${role}`;
+  let inner = '';
+  if (role === 'user' && carTag) {
+    inner += `<div class="car-tag">🚗 ${esc(carTag)}</div>\n`;
+  }
+  inner += esc(text);
+  d.innerHTML = `<div class="avatar">${role==='user'?'ВЫ':'AS'}</div><div class="bubble">${inner}</div>`;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addTyping() {
+  const d = document.createElement('div');
+  d.className = 'msg bot typing'; d.id = 'typing';
+  d.innerHTML = `<div class="avatar">AS</div><div class="bubble"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></div>`;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function rmTyping() { document.getElementById('typing')?.remove(); }
+
+async function send() {
+  const text = inp.value.trim();
+  if (!text) return;
+
+  inp.value = ''; inp.style.height = 'auto';
+  btnSnd.disabled = true;
+
+  let carTag = null;
+  if (car && (car.brand_model || car.year)) {
+    carTag = [car.brand_model, car.year, car.engine ? car.engine+'л' : ''].filter(Boolean).join(' · ');
+  }
+
+  addMsg('user', text, carTag);
+  addTyping();
+
+  try {
+    const res  = await fetch('/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ message: text, car })
+    });
+    const data = await res.json();
+    rmTyping();
+    addMsg('bot', res.ok ? data.answer : ('⚠️ ' + (data.detail || 'Ошибка сервера')));
+  } catch {
+    rmTyping();
+    addMsg('bot', '⚠️ Нет связи с сервером.');
+  }
+
+  btnSnd.disabled = false;
+  inp.focus();
+}
+
+inp.addEventListener('input', () => {
+  inp.style.height = 'auto';
+  inp.style.height = Math.min(inp.scrollHeight, 100) + 'px';
+});
+
+inp.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.shiftKey) { e.preventDefault(); send(); }
+});
+</script>
+</body>
+</html>

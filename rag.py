@@ -1,0 +1,145 @@
+import os
+from openai import AsyncOpenAI
+from supabase import create_client, Client
+
+client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+supabase: Client = create_client(
+    os.getenv("SUPABASE_URL"),
+    os.getenv("SUPABASE_KEY")
+)
+
+# ─────────────────────────────────────────────
+#  СИСТЕМНЫЙ ПРОМТ
+# ─────────────────────────────────────────────
+SYSTEM_PROMPT = """Ты — консультант интернет-магазина автозапчастей ООО «АвтоСклад» (Москва).
+
+━━━ ИНФОРМАЦИЯ О МАГАЗИНЕ ━━━
+Название: ООО «АвтоСклад»
+Пункты выдачи (Москва):
+  • ул. Ленина, д. 10
+  • пр-т Мира, д. 45
+  • ул. Тверская, д. 18
+  • ул. Профсоюзная, д. 72
+  • Кутузовский пр-т, д. 33
+Часы работы: Пн–Пт 09:00–20:00, Сб 10:00–18:00, Вс — выходной
+Оплата: наличными, картой курьеру, онлайн (Visa / MasterCard / МИР)
+Возврат: в течение 14 дней, товар в оригинальной упаковке без следов использования
+
+━━━ ГЛАВНЫЕ ПРАВИЛА ━━━
+1. Отвечай ТОЛЬКО на основе строк прайса, переданных в запросе. Никогда не придумывай товары, артикулы, цены или наличие.
+2. Если позиции нет в прайсе — честно скажи: «Такой позиции нет в нашем прайсе. Уточните у менеджера.»
+3. Если данных о наличии или цене нет — не угадывай.
+
+━━━ ПРОВЕРКА СОВМЕСТИМОСТИ ━━━
+Совместимость определяется по наименованию товара: формат «[Запчасть] для [Марка] [Модель] [Объём]».
+Пример: «Фильтр масляный MANN для Lada Vesta 1.6» → подходит для Lada Vesta 1.6.
+
+Если пользователь указал свой автомобиль:
+  • Найди позиции, где в наименовании упоминается его марка, модель и/или объём двигателя.
+  • Чётко скажи: ✅ Подходит / ❌ Не подходит — и объясни почему (только по данным прайса).
+  • Если совместимость невозможно определить из наименования — напиши: «⚠️ Совместимость уточните у менеджера».
+  • НИКОГДА не делай вывод о совместимости из собственных знаний — только из прайса.
+
+━━━ АНАЛОГИ ━━━
+Если есть колонка «Аналоги» — предложи их, если основной позиции нет или она в статусе «мало».
+
+━━━ НАЛИЧИЕ ━━━
+Передавай статус наличия как есть: «много» / «есть» / «мало».
+Если «мало» — предупреди, что товар заканчивается, и предложи аналог.
+
+━━━ ФОРМАТ ОТВЕТА ━━━
+Если нашёл товар: артикул, название, цена ₽, наличие. Если проверял совместимость — вердикт отдельной строкой.
+Отвечай кратко, по-русски, без лишней воды.
+
+━━━ ЗАПРЕЩЁННЫЕ ТЕМЫ ━━━
+Не отвечай на вопросы о: политике, личных мнениях, темах вне магазина, персональных данных других клиентов, финансовых/юридических/медицинских консультациях, закупочных ценах и поставщиках, негативных сравнениях с конкурентами, опасных и незаконных действиях.
+На такие вопросы отвечай строго: «Я могу помочь только с вопросами о товарах, заказах, доставке и работе нашего магазина. Уточните, пожалуйста, ваш вопрос 😊»
+"""
+
+
+async def get_embedding(text: str) -> list[float]:
+    response = await client.embeddings.create(
+        model="text-embedding-3-small",
+        input=text
+    )
+    return response.data[0].embedding
+
+
+async def search_price(query: str, top_k: int = 10) -> list[dict]:
+    embedding = await get_embedding(query)
+    result = supabase.rpc(
+        "match_price_items",
+        {"query_embedding": embedding, "match_count": top_k}
+    ).execute()
+    return result.data or []
+
+
+def build_car_context(car: dict) -> str:
+    parts = []
+    if car.get("brand_model"):
+        parts.append(car["brand_model"])
+    if car.get("year"):
+        parts.append(f"{car['year']} г.")
+    if car.get("engine"):
+        parts.append(f"{car['engine']} л.")
+    if car.get("vin"):
+        parts.append(f"VIN: {car['vin']}")
+    return ", ".join(parts)
+
+
+async def search_and_answer(user_message: str, car: dict = None) -> str:
+    # Обогащаем поисковый запрос данными авто
+    search_query = user_message
+    if car:
+        car_str = build_car_context(car)
+        if car_str:
+            search_query = f"{user_message} {car_str}"
+
+    items = await search_price(search_query)
+
+    if not items:
+        context = "Прайс пока не загружен или подходящих позиций не найдено."
+    else:
+        lines = []
+        for item in items:
+            parts = []
+            if item.get("article"):
+                parts.append(f"Артикул: {item['article']}")
+            if item.get("name"):
+                parts.append(f"Наименование: {item['name']}")
+            if item.get("price"):
+                parts.append(f"Цена: {item['price']} ₽")
+            if item.get("availability"):
+                parts.append(f"Наличие: {item['availability']}")
+            if item.get("analogs"):
+                parts.append(f"Аналоги: {item['analogs']}")
+            lines.append(" | ".join(parts))
+        context = "\n".join(lines)
+
+    car_block = ""
+    if car:
+        car_str = build_car_context(car)
+        if car_str:
+            car_block = f"\nАвтомобиль клиента: {car_str}\n"
+
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {
+            "role": "user",
+            "content": (
+                f"Строки из прайса:\n{context}\n"
+                f"{car_block}"
+                f"\nВопрос клиента: {user_message}"
+            )
+        }
+    ]
+
+    response = await client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=messages,
+        max_tokens=600,
+        temperature=0.1
+    )
+
+    return response.choices[0].message.content
