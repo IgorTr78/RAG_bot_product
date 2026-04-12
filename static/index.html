@@ -677,6 +677,17 @@ async function send() {
   const carTag = car?.brand_model || null;
   addMsg('user', text, carTag);
 
+  lastTopic = text;
+
+  // Правка #3: общий запрос по марке/модели — всегда в приоритете, без пикера
+  if (isGeneralQuery(text)) {
+    btnSnd.disabled = true;
+    await sendToApi(text);
+    btnSnd.disabled = false;
+    inp.focus();
+    return;
+  }
+
   // Awaiting model change
   if (awaitingModel) {
     awaitingModel = false;
@@ -687,17 +698,6 @@ async function send() {
   if (awaitingContact) {
     if (isAffirmative(text)) { showContactForm(); return; }
     awaitingContact = false;
-  }
-
-  lastTopic = text;
-
-  // Правка #3: общий запрос по марке/модели — сразу в API без пикера
-  if (isGeneralQuery(text)) {
-    btnSnd.disabled = true;
-    await sendToApi(text);
-    btnSnd.disabled = false;
-    inp.focus();
-    return;
   }
 
   // Правка #2: конкретная запчасть — пикер с нужной маркой предвыбранной
