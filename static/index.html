@@ -299,6 +299,25 @@
   #send-btn:disabled { background: var(--border); cursor: default; }
   #send-btn svg { width:15px;height:15px;fill:#fff; }
 
+  /* ── Action buttons after "nothing found" ── */
+  .action-btns {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 12px 14px; max-width: 78%;
+  }
+  .action-btns p {
+    font-size: 12px; color: var(--muted); margin-bottom: 10px;
+  }
+  .action-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .action-btn {
+    padding: 7px 14px; border-radius: 8px;
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all .15s; border: 1.5px solid var(--border);
+  }
+  .action-btn.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .action-btn.primary:hover { background: var(--blue-h); }
+  .action-btn.ghost { background: var(--surface2); color: var(--text); }
+  .action-btn.ghost:hover { border-color: var(--blue); color: var(--blue); }
+
   /* ── Footer ── */
   footer {
     width: 100%; text-align: center; padding: 6px 0 8px;
@@ -613,6 +632,41 @@ function showContactForm() {
   msgs.appendChild(wrapper); msgs.scrollTop = msgs.scrollHeight;
 }
 
+// ── Show action buttons when nothing found ──
+function showNotFoundActions() {
+  // Remove any existing action block
+  document.getElementById('not-found-actions')?.remove();
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'msg bot'; wrapper.id = 'not-found-actions';
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar'; avatar.textContent = 'А';
+  const box = document.createElement('div');
+  box.className = 'action-btns';
+  box.innerHTML = `
+    <p>Что сделаем?</p>
+    <div class="action-row">
+      <button class="action-btn primary" onclick="onNotifyMe()">🔔 Сообщить о появлении</button>
+      <button class="action-btn ghost" onclick="onSearchOther()">🔍 Поискать другое</button>
+    </div>
+  `;
+  wrapper.appendChild(avatar); wrapper.appendChild(box);
+  msgs.appendChild(wrapper); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function onNotifyMe() {
+  document.getElementById('not-found-actions')?.remove();
+  // Override topic to include notify intent
+  lastTopic = lastTopic + ' (уведомить о появлении)';
+  showContactForm();
+}
+
+function onSearchOther() {
+  document.getElementById('not-found-actions')?.remove();
+  inp.focus();
+  addMsg('bot', 'Конечно! Напиши что ищешь — посмотрим 🙂');
+}
+
 async function submitContact() {
   const name  = document.getElementById('cf-name')?.value.trim();
   const phone = document.getElementById('cf-phone')?.value.trim();
@@ -744,12 +798,14 @@ async function sendToApi(text) {
     const answer = res.ok ? data.answer : ('⚠️ ' + (data.detail||'Ошибка сервера'));
     addMsg('bot', answer);
 
-    // Trigger model change offer
-    if (answer.includes('ничего нет') || answer.includes('нет в наличии') || answer.includes('нет в прайсе')) {
-      awaitingModel = true;
+    // Show action buttons when nothing found
+    const nothingFound = answer.includes('ничего нет') || answer.includes('нет в наличии') ||
+                         answer.includes('нет в прайсе') || answer.includes('сейчас нет');
+    if (nothingFound) {
+      showNotFoundActions();
     }
-    // Trigger contact form offer
-    if (answer.includes('оставь') || answer.includes('контакт')) {
+    // Trigger contact form offer (if bot explicitly asked)
+    if (!nothingFound && (answer.includes('оставь') || answer.includes('контакт'))) {
       awaitingContact = true;
     }
   } catch {
