@@ -568,13 +568,19 @@ async function showModelPicker(query, title, preselectedBrand) {
   let selModel = null;
 
   function render() {
+    const availBrands = Object.keys(BRANDS);
+    if (availBrands.length === 0) {
+      picker.innerHTML = '<div class="picker-title">Загрузка данных...</div>';
+      return;
+    }
+    if (!selBrand || !BRANDS[selBrand]) selBrand = availBrands[0];
     picker.innerHTML = `
       <div class="picker-title">${pickerTitle}</div>
       <div class="brand-tabs">
-        ${Object.keys(BRANDS).map(b=>`<div class="brand-tab${b===selBrand?' active':''}" data-brand="${b}">${b}</div>`).join('')}
+        ${availBrands.map(b=>`<div class="brand-tab${b===selBrand?' active':''}" data-brand="${b}">${b}</div>`).join('')}
       </div>
       <div class="model-list">
-        ${BRANDS[selBrand].map(m=>`<button class="model-btn${m===selModel?' selected':''}" data-model="${m}">${m}</button>`).join('')}
+        ${(BRANDS[selBrand]||[]).map(m=>`<button class="model-btn${m===selModel?' selected':''}" data-model="${m}">${m}</button>`).join('')}
       </div>
       <button class="picker-confirm${selModel?' visible':''}" id="picker-ok">Искать для ${selBrand} ${selModel||''}</button>
     `;
