@@ -736,7 +736,13 @@ function showContactForm() {
       </div>
       <div class="contact-field">
         <label>Телефон</label>
-        <input id="cf-phone" placeholder="+7 (___) ___-__-__" type="tel">
+        <div style="position:relative;display:flex;align-items:center;">
+          <span style="position:absolute;left:10px;font-size:12px;color:var(--text);font-weight:500;pointer-events:none;z-index:1;">+7</span>
+          <input id="cf-phone" placeholder="(___) ___-__-__" type="tel"
+            style="padding-left:28px;"
+            oninput="phoneMask(this)"
+            maxlength="15">
+        </div>
       </div>
       <div class="contact-or">или</div>
       <div class="contact-field">
@@ -750,13 +756,29 @@ function showContactForm() {
   msgs.appendChild(wrapper); msgs.scrollTop = msgs.scrollHeight;
 }
 
+function phoneMask(input) {
+  // Strip everything except digits
+  let digits = input.value.replace(/\D/g, '');
+  // Limit to 10 digits (without +7)
+  digits = digits.slice(0, 10);
+  // Format: XXX-XXX-XX-XX
+  let formatted = '';
+  if (digits.length > 0) formatted += digits.slice(0, 3);
+  if (digits.length >= 3) formatted += '-' + digits.slice(3, 6);
+  if (digits.length >= 6) formatted += '-' + digits.slice(6, 8);
+  if (digits.length >= 8) formatted += '-' + digits.slice(8, 10);
+  input.value = formatted;
+}
+
 async function submitContact() {
   const name  = document.getElementById('cf-name')?.value.trim();
-  const phone = document.getElementById('cf-phone')?.value.trim();
+  const rawPhone = document.getElementById('cf-phone')?.value.trim();
+  // Prepend +7 if phone is filled
+  const phone = rawPhone ? '+7' + rawPhone : '';
   const email = document.getElementById('cf-email')?.value.trim();
   ['cf-name','cf-phone','cf-email'].forEach(id => document.getElementById(id)?.classList.remove('err'));
   if (!name) { document.getElementById('cf-name').classList.add('err'); return; }
-  if (!phone && !email) {
+  if (!rawPhone && !email) {
     document.getElementById('cf-phone').classList.add('err');
     document.getElementById('cf-email').classList.add('err');
     return;
