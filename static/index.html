@@ -11,7 +11,1017 @@
 
   :root {
     --bg:        #F5F5F5;
+    --surface:   #FFFFFF;<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>АвтоСклад — Поиск запчастей</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #EEF2F7;
     --surface:   #FFFFFF;
+    --surface2:  #F0F4FA;
+    --border:    #DDE3EE;
+    --blue:      #005BFF;
+    --blue-h:    #0047CC;
+    --blue-soft: #E8F0FF;
+    --blue2:     #0099FF;
+    --navy:      #003087;
+    --text:      #1A1A2E;
+    --muted:     #8C90A0;
+    --green:     #00B341;
+    --red:       #FF3B30;
+    --yellow:    #FF9500;
+    --radius:    14px;
+    --shadow:    0 4px 24px rgba(0,91,255,0.10), 0 1px 4px rgba(0,0,0,0.06);
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.07);
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Header ── */
+  header {
+    width: 100%;
+    background: linear-gradient(90deg, #003087 0%, #004DB3 100%);
+    padding: 0 24px;
+    height: 58px;
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, #0099FF 0%, #005BFF 100%);
+    border-radius: 9px; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,91,255,0.5);
+  }
+  .logo-text { font-size: 17px; font-weight: 800; color: #fff; letter-spacing: -0.02em; font-family: 'Geologica', sans-serif; }
+  .logo-sub  { font-size: 11px; color: rgba(255,255,255,0.4); margin-left: 2px; }
+  .header-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.12); margin: 0 4px; }
+  .header-label   { font-size: 12px; color: rgba(255,255,255,0.45); }
+  .status {
+    margin-left: auto; display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: rgba(255,255,255,0.45);
+  }
+  .live-dot {
+    width: 7px; height: 7px; background: var(--green);
+    border-radius: 50%; box-shadow: 0 0 8px #00B341AA;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.85)} }
+
+  /* ── Layout ── */
+  .layout {
+    display: flex; width: 100%; max-width: 1040px;
+    flex: 1; overflow: hidden; padding: 16px; gap: 14px;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 224px; flex-shrink: 0;
+    display: flex; flex-direction: column; gap: 10px; overflow-y: auto;
+  }
+  .sidebar-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .sidebar-head {
+    padding: 11px 14px; border-bottom: 1px solid var(--border);
+    font-size: 10px; font-weight: 700; color: var(--muted);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    background: var(--surface2); font-family: 'Geologica', sans-serif;
+  }
+  .sidebar-body { padding: 12px 14px; }
+
+  .car-badge {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--blue-soft); border: 1.5px solid var(--blue);
+    border-radius: 10px; padding: 10px 12px;
+  }
+  .car-badge .icon { font-size: 22px; }
+  .car-badge .info strong { display: block; font-size: 13px; font-weight: 600; color: var(--navy); }
+
+  .sb-picker { display: flex; flex-direction: column; gap: 10px; }
+  .sb-step-label {
+    font-size: 10px; font-weight: 600; color: var(--muted);
+    letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px;
+  }
+  .sb-brand-grid, .sb-model-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+
+  .sb-brand-btn {
+    padding: 5px 10px; border: 1.5px solid var(--border);
+    border-radius: 20px; background: var(--surface2);
+    color: var(--muted); font-family: 'Inter', sans-serif;
+    font-size: 11px; font-weight: 500; cursor: pointer; transition: all .15s;
+  }
+  .sb-brand-btn.active, .sb-brand-btn:hover {
+    border-color: var(--blue); color: var(--blue); background: var(--blue-soft);
+  }
+  .sb-model-btn {
+    padding: 4px 9px; border: 1.5px solid var(--border);
+    border-radius: 8px; background: var(--surface);
+    color: var(--text); font-family: 'Inter', sans-serif;
+    font-size: 11px; font-weight: 500; cursor: pointer; transition: all .15s;
+  }
+  .sb-model-btn:hover   { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+  .sb-model-btn.selected { border-color: var(--blue); background: var(--blue); color: #fff; }
+
+  .btn-primary {
+    width: 100%; padding: 9px;
+    background: linear-gradient(135deg, #003087 0%, #005BFF 60%, #0099FF 100%);
+    border: none; border-radius: 9px; color: #fff; font-family: 'Geologica', sans-serif;
+    font-size: 12px; font-weight: 600; cursor: pointer; transition: opacity .15s; margin-top: 4px;
+    box-shadow: 0 2px 8px rgba(0,91,255,0.3);
+  }
+  .btn-primary:hover { opacity: .88; }
+  .btn-primary:disabled { background: var(--border); box-shadow: none; cursor: default; }
+
+  .btn-ghost {
+    width: 100%; padding: 7px; background: transparent;
+    border: 1.5px solid var(--border); border-radius: 9px;
+    color: var(--muted); font-family: 'Inter', sans-serif;
+    font-size: 11px; font-weight: 500; cursor: pointer; margin-top: 8px;
+    transition: color .15s, border-color .15s;
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--blue); }
+
+  .info-block { font-size: 11px; color: var(--muted); line-height: 1.9; }
+  .info-block strong { color: var(--text); font-weight: 600; }
+
+  /* ── Chat ── */
+  .chat-wrap {
+    flex: 1; display: flex; flex-direction: column; overflow: hidden;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+  }
+  .chat-head {
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    background: linear-gradient(135deg, #f0f5ff 0%, #ffffff 100%);
+  }
+  .agent-avatar {
+    width: 40px; height: 40px; flex-shrink: 0; border-radius: 50%; position: relative;
+    background: linear-gradient(135deg, #003087 0%, #005BFF 60%, #0099FF 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 16px; font-weight: 700;
+    box-shadow: 0 2px 8px rgba(0,91,255,0.35);
+  }
+  .agent-online-dot {
+    position: absolute; bottom: 1px; right: 1px;
+    width: 10px; height: 10px; background: var(--green);
+    border-radius: 50%; border: 2px solid #fff;
+  }
+  .agent-info strong { display: block; font-size: 14px; font-weight: 700; color: var(--navy); font-family: 'Geologica', sans-serif; }
+  .agent-info .agent-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .agent-info .agent-speed { font-size: 11px; color: var(--blue); font-weight: 600; margin-top: 1px; }
+
+  /* Rating stars in header */
+  .agent-rating { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+  .stars { color: #FFB800; font-size: 12px; letter-spacing: 1px; }
+  .rating-count { font-size: 10px; color: var(--muted); }
+
+  #messages {
+    flex: 1; overflow-y: auto; padding: 16px;
+    display: flex; flex-direction: column; gap: 10px;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+
+  .msg { display: flex; gap: 8px; animation: slideUp .22s cubic-bezier(.16,1,.3,1) both; }
+  @keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  .msg.user { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+    font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+  }
+  .msg.bot  .avatar { background: linear-gradient(135deg, #003087 0%, #005BFF 80%); color: #fff; box-shadow: 0 1px 4px rgba(0,48,135,0.3); }
+  .msg.user .avatar { background: var(--navy); color: #fff; }
+
+  .bubble {
+    max-width: 76%; padding: 10px 14px; border-radius: var(--radius);
+    font-size: 13px; line-height: 1.65; word-break: break-word;
+  }
+  .msg.bot  .bubble {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-top-left-radius: 3px; color: var(--text);
+    box-shadow: var(--shadow-sm);
+  }
+  .msg.user .bubble {
+    background: linear-gradient(135deg, #003087 0%, #005BFF 60%, #0099FF 100%);
+    border-top-right-radius: 3px; color: #fff;
+    box-shadow: 0 2px 8px rgba(0,48,135,0.25);
+  }
+
+  .car-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 5px; padding: 2px 8px;
+    font-size: 10px; font-weight: 500; color: #fff; margin-bottom: 5px;
+  }
+
+  /* msg timestamp */
+  .msg-time {
+    font-size: 9px; color: var(--muted); margin-top: 3px;
+    padding: 0 4px; align-self: flex-end;
+  }
+  .msg.user .msg-time { text-align: right; }
+
+  /* ── Model picker ── */
+  .model-picker {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 12px; padding: 13px 14px; max-width: 80%;
+    box-shadow: var(--shadow-sm);
+  }
+  .picker-title { font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 10px; font-family: 'Geologica', sans-serif; }
+  .brand-tabs   { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+  .brand-tab {
+    padding: 4px 10px; border: 1.5px solid var(--border); border-radius: 20px;
+    background: var(--surface2); color: var(--muted);
+    font-size: 11px; font-weight: 500; cursor: pointer; transition: all .15s;
+  }
+  .brand-tab.active, .brand-tab:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+  .model-list { display: flex; flex-wrap: wrap; gap: 5px; min-height: 28px; }
+  .model-btn {
+    padding: 4px 10px; border: 1.5px solid var(--border); border-radius: 8px;
+    background: var(--surface); color: var(--text);
+    font-size: 11px; font-weight: 500; cursor: pointer; transition: all .15s;
+  }
+  .model-btn:hover   { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+  .model-btn.selected { border-color: var(--blue); background: var(--blue); color: #fff; }
+  .picker-confirm {
+    margin-top: 10px; padding: 7px 16px;
+    background: linear-gradient(135deg, #003087 0%, #005BFF 60%, #0099FF 100%);
+    border: none; border-radius: 8px; color: #fff;
+    font-family: 'Geologica', sans-serif; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: opacity .15s; display: none;
+    box-shadow: 0 2px 8px rgba(0,91,255,0.3);
+  }
+  .picker-confirm:hover { opacity: .88; }
+  .picker-confirm.visible { display: inline-block; }
+
+  /* ── Contact form ── */
+  .contact-form {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 12px; padding: 14px; max-width: 92%;
+    box-shadow: var(--shadow-sm);
+  }
+  .contact-form .form-title { font-size: 12px; font-weight: 600; color: var(--navy); margin-bottom: 12px; }
+  .contact-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+  .contact-field { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 110px; }
+  .contact-field label {
+    font-size: 10px; font-weight: 600; color: var(--muted);
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .contact-field input {
+    padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 8px;
+    background: var(--surface2); font-family: 'Inter', sans-serif;
+    font-size: 12px; color: var(--text); outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .contact-field input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px #005BFF12; }
+  .contact-field input::placeholder { color: var(--muted); }
+  .contact-field input.err { border-color: var(--red); }
+  .contact-or { font-size: 11px; color: var(--muted); font-weight: 500; padding-bottom: 8px; flex-shrink: 0; align-self: flex-end; }
+  .contact-submit {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #003087 0%, #005BFF 60%, #0099FF 100%);
+    border: none; border-radius: 8px; color: #fff;
+    font-family: 'Geologica', sans-serif; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: opacity .15s; flex-shrink: 0; align-self: flex-end;
+    box-shadow: 0 2px 8px rgba(0,91,255,0.3);
+  }
+  .contact-submit:hover { opacity: .88; }
+
+  /* ── Action buttons ── */
+  .action-btns {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 12px; padding: 12px 14px; max-width: 80%;
+    box-shadow: var(--shadow-sm);
+  }
+  .action-btns p { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .action-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .action-btn {
+    padding: 7px 14px; border-radius: 8px;
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all .15s; border: 1.5px solid var(--border);
+  }
+  .action-btn.primary {
+    background: linear-gradient(135deg, #003087 0%, #005BFF 60%, #0099FF 100%);
+    color: #fff; border-color: transparent;
+    box-shadow: 0 2px 8px rgba(0,91,255,0.28);
+  }
+  .action-btn.primary:hover { opacity: .88; }
+  .action-btn.ghost { background: var(--surface2); color: var(--text); }
+  .action-btn.ghost:hover { border-color: var(--blue); color: var(--blue); }
+
+  /* ── Rating widget ── */
+  .rating-widget {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 12px; padding: 12px 16px; max-width: 80%;
+    box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 12px;
+  }
+  .rating-widget span { font-size: 12px; color: var(--muted); }
+  .rating-stars { display: flex; gap: 5px; }
+  .rating-star {
+    font-size: 22px; cursor: pointer; transition: transform .15s;
+    filter: grayscale(1); opacity: .4;
+  }
+  .rating-star:hover, .rating-star.lit { filter: none; opacity: 1; transform: scale(1.15); }
+
+  /* ── Dynamic chips ── */
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:9px; }
+  .chip {
+    font-size: 11px; font-weight: 500; padding: 5px 12px;
+    border: 1.5px solid var(--border); border-radius: 20px;
+    background: var(--surface); color: var(--muted);
+    cursor: pointer; transition: all .15s; white-space: nowrap;
+    box-shadow: var(--shadow-sm);
+  }
+  .chip:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+  .chip.brand-chip {
+    border-color: #C5D8FF; color: var(--blue); background: var(--blue-soft);
+    font-weight: 600;
+  }
+
+  /* ── Typing ── */
+  .typing .bubble { display:flex; gap:5px; align-items:center; padding:13px 16px; }
+  .tdot { width:6px;height:6px;background:var(--muted);border-radius:50%;animation:blink 1.2s infinite; }
+  .tdot:nth-child(2){animation-delay:.2s} .tdot:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,80%,100%{opacity:.25;transform:scale(.75)}40%{opacity:1;transform:scale(1)}}
+
+  /* ── Input ── */
+  #input-area { padding: 10px 14px 10px; border-top: 1px solid var(--border); flex-shrink: 0; }
+  .input-row {
+    display: flex; gap: 8px; align-items: flex-end;
+    background: var(--surface2); border: 1.5px solid var(--border);
+    border-radius: 12px; padding: 8px 10px;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .input-row:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3px #005BFF12; }
+  #user-input {
+    flex: 1; background: transparent; border: none; outline: none;
+    color: var(--text); font-family: 'Inter', sans-serif;
+    font-size: 13px; line-height: 1.5; resize: none; max-height: 100px;
+  }
+  #user-input::placeholder { color: var(--muted); }
+  #send-btn {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, #003087 0%, #005BFF 60%, #0099FF 100%);
+    border: none; border-radius: 9px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: opacity .15s, transform .1s;
+    box-shadow: 0 2px 8px rgba(0,91,255,0.35);
+  }
+  #send-btn:hover  { opacity: .88; }
+  #send-btn:active { transform: scale(.92); }
+  #send-btn:disabled { background: var(--border); box-shadow: none; cursor: default; }
+  #send-btn svg { width:15px;height:15px;fill:#fff; }
+
+  /* ── Footer ── */
+  footer {
+    width: 100%; text-align: center; padding: 6px 0 8px;
+    font-size: 10px; color: var(--muted); flex-shrink: 0;
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 680px) {
+    .layout { padding: 0; gap: 0; }
+    .chat-wrap { border-radius: 0; border: none; box-shadow: none; }
+    .sidebar { display: none; }
+    /* Mobile car button */
+    .mobile-car-btn {
+      display: flex; align-items: center; gap: 6px;
+      margin: 0 14px 8px; padding: 8px 12px;
+      background: var(--blue-soft); border: 1.5px solid var(--blue);
+      border-radius: 10px; font-size: 12px; font-weight: 600; color: var(--blue);
+      cursor: pointer;
+    }
+  }
+  @media (min-width: 681px) { .mobile-car-btn { display: none; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🔧</div>
+    <span class="logo-text">АвтоСклад</span>
+    <span class="logo-sub">Москва</span>
+  </div>
+  <div class="header-divider"></div>
+  <span class="header-label">Подбор запчастей</span>
+  <div class="status"><div class="live-dot"></div>онлайн</div>
+</header>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-head">🚗 Мой автомобиль</div>
+      <div class="sidebar-body">
+        <div id="sb-picker-view">
+          <div class="sb-picker">
+            <div>
+              <div class="sb-step-label">Марка</div>
+              <div class="sb-brand-grid" id="sb-brands"></div>
+            </div>
+            <div id="sb-models-wrap" style="display:none">
+              <div class="sb-step-label" style="margin-top:8px">Модель</div>
+              <div class="sb-model-grid" id="sb-models"></div>
+            </div>
+            <button class="btn-primary" id="sb-save-btn" onclick="sbSaveCar()" disabled>Выбрать</button>
+          </div>
+        </div>
+        <div id="sb-saved-view" style="display:none">
+          <div class="car-badge">
+            <span class="icon">🚗</span>
+            <div class="info"><strong id="sb-car-main"></strong></div>
+          </div>
+          <button class="btn-ghost" onclick="sbClearCar()">Изменить</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-card">
+      <div class="sidebar-head">🏪 Магазин</div>
+      <div class="sidebar-body">
+        <div class="info-block">
+          <strong>ООО «АвтоСклад»</strong><br>
+          Пн–Пт: 09:00–20:00<br>
+          Сб: 10:00–18:00<br>
+          Вс: выходной<br><br>
+          Оплата: наличные, карта, онлайн
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat -->
+  <div class="chat-wrap">
+    <div class="chat-head">
+      <div class="agent-avatar">
+        А
+        <div class="agent-online-dot"></div>
+      </div>
+      <div class="agent-info">
+        <strong>Александр</strong>
+        <div class="agent-speed">⚡ Отвечу в течение 30 секунд!</div>
+        <div class="agent-sub">консультант · запчасти</div>
+      </div>
+      <div class="agent-rating">
+        <span class="stars">★★★★★</span>
+        <span class="rating-count">4.9</span>
+      </div>
+    </div>
+
+    <div id="messages">
+      <div class="msg bot">
+        <div class="avatar">А</div>
+        <div>
+          <div class="bubble">Привет! Я Александр 👋 Помогу быстро подобрать нужные запчасти для твоего авто.<br><br>Выбери машину слева — проверю совместимость за секунду. Или просто напиши, что нужно 🙂</div>
+          <div class="msg-time" id="welcome-time"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="input-area">
+      <!-- Mobile car button -->
+      <div class="mobile-car-btn" onclick="showMobileCarPicker()">🚗 <span id="mobile-car-label">Выбрать автомобиль</span></div>
+      <div class="chips" id="chips-bar">
+        <span class="chip" onclick="fill(this)">Масляный фильтр</span>
+        <span class="chip" onclick="fill(this)">Тормозные колодки</span>
+        <span class="chip" onclick="fill(this)">Свечи зажигания</span>
+        <span class="chip" onclick="fill(this)">Воздушный фильтр</span>
+        <span class="chip" onclick="fill(this)">Часы работы</span>
+      </div>
+      <div class="input-row">
+        <textarea id="user-input" rows="1" placeholder="Напишите что ищете..." maxlength="500"></textarea>
+        <button id="send-btn" onclick="send()" title="Отправить">
+          <svg viewBox="0 0 24 24"><path d="M2 21L23 12 2 3v7l15 2-15 2v7z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>Shift+Enter — отправить · АвтоСклад © 2025</footer>
+
+<script>
+// ── Init welcome time ──
+document.getElementById('welcome-time').textContent = new Date().toLocaleTimeString('ru', {hour:'2-digit',minute:'2-digit'});
+
+// ── Brands (dynamic) ──
+let BRANDS = {};
+let brandsLoaded = false;
+
+async function loadBrands() {
+  if (brandsLoaded) return;
+  try {
+    const res = await fetch('/available-models');
+    if (res.ok) {
+      BRANDS = await res.json();
+      brandsLoaded = true;
+      sbInit();
+      updateChips();
+    }
+  } catch(e) { console.warn('Failed to load brands:', e); }
+}
+loadBrands();
+
+// ── Dynamic chips: after car selected show relevant part types ──
+const DEFAULT_CHIPS = ['Масляный фильтр','Тормозные колодки','Свечи зажигания','Воздушный фильтр','Часы работы'];
+const PART_CHIPS    = ['Масляный фильтр','Воздушный фильтр','Тормозные колодки','Свечи зажигания','Амортизаторы','Ремень ГРМ','Помпа'];
+
+function updateChips(withCar) {
+  const bar = document.getElementById('chips-bar');
+  bar.innerHTML = '';
+  const list = withCar ? PART_CHIPS : DEFAULT_CHIPS;
+  list.forEach(t => {
+    const s = document.createElement('span');
+    s.className = 'chip' + (withCar ? ' brand-chip' : '');
+    s.textContent = t;
+    s.onclick = () => fill(s);
+    bar.appendChild(s);
+  });
+}
+
+// ── State ──
+let car             = null;
+let pendingQuery    = null;
+let awaitingContact = false;
+let awaitingModel   = false;
+let lastTopic       = '';
+let dialogCount     = 0; // кол-во обменов для триггера оценки
+
+// ── Proactive message (10s after open if no activity) ──
+let proactiveTimer = setTimeout(() => {
+  if (dialogCount === 0) {
+    addMsg('bot', 'Кстати, если не знаешь артикул — просто напиши марку авто и что нужно. Подберём сами 🙂');
+  }
+}, 10000);
+
+// ── Sidebar picker ──
+let sbBrand = null, sbModel = null;
+
+function sbInit() {
+  const el = document.getElementById('sb-brands');
+  el.innerHTML = '';
+  if (!Object.keys(BRANDS).length) {
+    el.innerHTML = '<span style="font-size:11px;color:var(--muted)">Загрузка...</span>';
+    return;
+  }
+  Object.keys(BRANDS).forEach(b => {
+    const btn = document.createElement('button');
+    btn.className = 'sb-brand-btn'; btn.textContent = b;
+    btn.onclick = () => sbSelectBrand(b);
+    el.appendChild(btn);
+  });
+}
+
+function sbSelectBrand(brand) {
+  sbBrand = brand; sbModel = null;
+  document.getElementById('sb-save-btn').disabled = true;
+  document.querySelectorAll('.sb-brand-btn').forEach(b => b.classList.toggle('active', b.textContent === brand));
+  const wrap = document.getElementById('sb-models-wrap');
+  const el   = document.getElementById('sb-models');
+  wrap.style.display = 'block'; el.innerHTML = '';
+  BRANDS[brand].forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'sb-model-btn'; btn.textContent = m;
+    btn.onclick = () => {
+      sbModel = m;
+      document.querySelectorAll('.sb-model-btn').forEach(x => x.classList.remove('selected'));
+      btn.classList.add('selected');
+      document.getElementById('sb-save-btn').disabled = false;
+    };
+    el.appendChild(btn);
+  });
+}
+
+function sbSaveCar() {
+  if (!sbBrand || !sbModel) return;
+  const full = `${sbBrand} ${sbModel}`;
+  car = { brand_model: full };
+  document.getElementById('sb-car-main').textContent = full;
+  document.getElementById('sb-picker-view').style.display = 'none';
+  document.getElementById('sb-saved-view').style.display  = 'block';
+  document.getElementById('mobile-car-label').textContent = full;
+  updateChips(true);
+}
+
+function sbClearCar() {
+  car = null; sbBrand = null; sbModel = null;
+  document.getElementById('sb-picker-view').style.display = 'block';
+  document.getElementById('sb-saved-view').style.display  = 'none';
+  document.getElementById('sb-models-wrap').style.display = 'none';
+  document.getElementById('sb-save-btn').disabled = true;
+  document.querySelectorAll('.sb-brand-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('mobile-car-label').textContent = 'Выбрать автомобиль';
+  updateChips(false);
+}
+
+function showMobileCarPicker() {
+  addMsg('bot', 'Выбери свой автомобиль:');
+  showModelPicker('', 'Выбери автомобиль:', null);
+}
+
+// ── Chat helpers ──
+const msgs   = document.getElementById('messages');
+const inp    = document.getElementById('user-input');
+const btnSnd = document.getElementById('send-btn');
+
+function fill(chip) { inp.value = chip.textContent || chip; inp.focus(); }
+
+function nowTime() { return new Date().toLocaleTimeString('ru', {hour:'2-digit',minute:'2-digit'}); }
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+function addMsg(role, text, carTag) {
+  clearTimeout(proactiveTimer);
+  const d = document.createElement('div');
+  d.className = `msg ${role}`;
+  let inner = '';
+  if (role === 'user' && carTag) inner += `<div class="car-tag">🚗 ${esc(carTag)}</div><br>`;
+  inner += esc(text);
+  const bubble = `<div class="bubble">${inner}</div><div class="msg-time">${nowTime()}</div>`;
+  d.innerHTML = `<div class="avatar">${role==='user'?'ВЫ':'А'}</div><div>${bubble}</div>`;
+  msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
+  return d;
+}
+
+function addTyping() {
+  const d = document.createElement('div');
+  d.className = 'msg bot typing'; d.id = 'typing';
+  d.innerHTML = `<div class="avatar">А</div><div class="bubble"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></div>`;
+  msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
+}
+function rmTyping() { document.getElementById('typing')?.remove(); }
+
+// ── Model picker ──
+async function showModelPicker(query, title, preselectedBrand) {
+  pendingQuery = query;
+  const pickerTitle = title || 'Для какой модели ищем?';
+  if (!brandsLoaded) await loadBrands();
+
+  document.getElementById('model-picker-msg')?.remove();
+  const wrapper = document.createElement('div');
+  wrapper.className = 'msg bot'; wrapper.id = 'model-picker-msg';
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar'; avatar.textContent = 'А';
+  const picker = document.createElement('div');
+  picker.className = 'model-picker';
+
+  const availBrands = Object.keys(BRANDS);
+  let selBrand = (preselectedBrand && BRANDS[preselectedBrand]) ? preselectedBrand : availBrands[0];
+  let selModel = null;
+
+  function render() {
+    if (!availBrands.length) { picker.innerHTML = '<div class="picker-title">Загрузка...</div>'; return; }
+    if (!selBrand || !BRANDS[selBrand]) selBrand = availBrands[0];
+    picker.innerHTML = `
+      <div class="picker-title">${pickerTitle}</div>
+      <div class="brand-tabs">
+        ${availBrands.map(b=>`<div class="brand-tab${b===selBrand?' active':''}" data-brand="${b}">${b}</div>`).join('')}
+      </div>
+      <div class="model-list">
+        ${(BRANDS[selBrand]||[]).map(m=>`<button class="model-btn${m===selModel?' selected':''}" data-model="${m}">${m}</button>`).join('')}
+      </div>
+      <button class="picker-confirm${selModel?' visible':''}" id="picker-ok">Искать для ${selBrand} ${selModel||''}</button>
+    `;
+    picker.querySelectorAll('.brand-tab').forEach(t => { t.onclick = () => { selBrand=t.dataset.brand; selModel=null; render(); }; });
+    picker.querySelectorAll('.model-btn').forEach(b => { b.onclick = () => { selModel=b.dataset.model; render(); }; });
+    const ok = picker.querySelector('#picker-ok');
+    if (ok) ok.onclick = () => confirmPick(selBrand, selModel);
+  }
+  render();
+  wrapper.appendChild(avatar); wrapper.appendChild(picker);
+  msgs.appendChild(wrapper); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function confirmPick(brand, model) {
+  document.getElementById('model-picker-msg')?.remove();
+  const full = `${brand} ${model}`;
+  car = { brand_model: full };
+  document.getElementById('sb-car-main').textContent = full;
+  document.getElementById('sb-picker-view').style.display = 'none';
+  document.getElementById('sb-saved-view').style.display  = 'block';
+  document.getElementById('mobile-car-label').textContent = full;
+  updateChips(true);
+  addMsg('bot', `Отлично, ищу для ${full}! Секунду...`);
+  if (pendingQuery) { const q = pendingQuery; pendingQuery = null; sendToApi(q); }
+}
+
+// ── Contact form ──
+function showContactForm() {
+  awaitingContact = false;
+  document.getElementById('contact-form-msg')?.remove();
+  const wrapper = document.createElement('div');
+  wrapper.className = 'msg bot'; wrapper.id = 'contact-form-msg';
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar'; avatar.textContent = 'А';
+  const form = document.createElement('div');
+  form.className = 'contact-form';
+  form.innerHTML = `
+    <div class="form-title">Оставь контакты — свяжемся как только появится:</div>
+    <div class="contact-row">
+      <div class="contact-field">
+        <label>Имя *</label>
+        <input id="cf-name" placeholder="Как вас зовут?">
+      </div>
+      <div class="contact-field">
+        <label>Телефон</label>
+        <input id="cf-phone" placeholder="+7 (___) ___-__-__" type="tel">
+      </div>
+      <div class="contact-or">или</div>
+      <div class="contact-field">
+        <label>E-mail</label>
+        <input id="cf-email" placeholder="mail@example.com" type="email">
+      </div>
+      <button class="contact-submit" onclick="submitContact()">Отправить</button>
+    </div>
+  `;
+  wrapper.appendChild(avatar); wrapper.appendChild(form);
+  msgs.appendChild(wrapper); msgs.scrollTop = msgs.scrollHeight;
+}
+
+async function submitContact() {
+  const name  = document.getElementById('cf-name')?.value.trim();
+  const phone = document.getElementById('cf-phone')?.value.trim();
+  const email = document.getElementById('cf-email')?.value.trim();
+  ['cf-name','cf-phone','cf-email'].forEach(id => document.getElementById(id)?.classList.remove('err'));
+  if (!name) { document.getElementById('cf-name').classList.add('err'); return; }
+  if (!phone && !email) {
+    document.getElementById('cf-phone').classList.add('err');
+    document.getElementById('cf-email').classList.add('err');
+    return;
+  }
+  document.getElementById('contact-form-msg')?.remove();
+  try {
+    await fetch('/contacts', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ name, phone: phone||null, email: email||null, topic: lastTopic })
+    });
+  } catch(e) { console.warn(e); }
+  addMsg('bot', `Спасибо, ${name}! Как только появится — сразу дам знать. Если что-то ещё нужно, спрашивай.`);
+}
+
+// ── Not found actions ──
+function showNotFoundActions() {
+  document.getElementById('not-found-actions')?.remove();
+  const wrapper = document.createElement('div');
+  wrapper.className = 'msg bot'; wrapper.id = 'not-found-actions';
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar'; avatar.textContent = 'А';
+  const box = document.createElement('div');
+  box.className = 'action-btns';
+  box.innerHTML = `
+    <p>Что сделаем?</p>
+    <div class="action-row">
+      <button class="action-btn primary" onclick="onNotifyMe()">🔔 Сообщить о появлении</button>
+      <button class="action-btn ghost" onclick="onSearchOther()">🔍 Выбрать другую запчасть</button>
+    </div>
+  `;
+  wrapper.appendChild(avatar); wrapper.appendChild(box);
+  msgs.appendChild(wrapper); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function onNotifyMe() {
+  document.getElementById('not-found-actions')?.remove();
+  lastTopic = lastTopic + ' (уведомить о появлении)';
+  showContactForm();
+}
+function onSearchOther() {
+  document.getElementById('not-found-actions')?.remove();
+  addMsg('bot', 'Конечно! Напиши какую запчасть ищем — подберём 🙂');
+  inp.focus();
+}
+
+// ── Rating widget (after 3 exchanges) ──
+function showRating() {
+  document.getElementById('rating-msg')?.remove();
+  const wrapper = document.createElement('div');
+  wrapper.className = 'msg bot'; wrapper.id = 'rating-msg';
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar'; avatar.textContent = 'А';
+  const box = document.createElement('div');
+  box.className = 'rating-widget';
+  box.innerHTML = `
+    <span>Помог ли я тебе?</span>
+    <div class="rating-stars" id="rating-stars">
+      ${[1,2,3,4,5].map(i=>`<span class="rating-star" data-val="${i}" onclick="submitRating(${i})">★</span>`).join('')}
+    </div>
+  `;
+  // Hover effect
+  box.querySelectorAll('.rating-star').forEach((s,i,arr) => {
+    s.onmouseenter = () => arr.forEach((x,j) => x.classList.toggle('lit', j<=i));
+    s.onmouseleave = () => arr.forEach(x => x.classList.remove('lit'));
+  });
+  wrapper.appendChild(avatar); wrapper.appendChild(box);
+  msgs.appendChild(wrapper); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function submitRating(val) {
+  document.getElementById('rating-msg')?.remove();
+  const txt = val >= 4 ? `Спасибо! Рад был помочь 🙌` : `Спасибо за честность — буду стараться лучше!`;
+  addMsg('bot', txt);
+  // Save rating (fire and forget)
+  fetch('/contacts', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ name: 'Оценка', topic: `Оценка диалога: ${val}/5 | ${lastTopic}` })
+  }).catch(()=>{});
+}
+
+// ── Intent helpers ──
+const PRODUCT_KW = ['фильтр','колодки','свечи','масло','ремень','помпа','стойка','рычаг',
+  'наконечник','амортизатор','диск','термостат','радиатор','генератор','стартер',
+  'насос','прокладка','подшипник','сальник','запчасть','деталь'];
+
+const GENERAL_KW = ['что есть','что у вас','что имеется','покажи всё','покажи все',
+  'весь каталог','все запчасти','ассортимент'];
+
+function isProductQuery(t) { const l=t.toLowerCase(); return PRODUCT_KW.some(k=>l.includes(k)); }
+
+function isGeneralQuery(t) {
+  const l = t.toLowerCase();
+  if (GENERAL_KW.some(k=>l.includes(k))) return true;
+  if ((l.includes('что')||l.includes('есть')||l.includes('покажи')) && detectBrand(l)) return true;
+  return false;
+}
+
+function detectBrand(lower) {
+  const map = {
+    'lada':'Lada','лада':'Lada','ваз':'Lada',
+    'kia':'Kia','киа':'Kia',
+    'hyundai':'Hyundai','хендай':'Hyundai','хёндай':'Hyundai','хундай':'Hyundai','хюндай':'Hyundai',
+    'toyota':'Toyota','тойота':'Toyota','тайота':'Toyota','тоёта':'Toyota',
+    'volkswagen':'Volkswagen','фольксваген':'Volkswagen','фольцваген':'Volkswagen',
+    'фальцваген':'Volkswagen','vw':'Volkswagen','вольксваген':'Volkswagen',
+    'renault':'Renault','рено':'Renault','ренол':'Renault',
+    'nissan':'Nissan','ниссан':'Nissan','нисан':'Nissan',
+    'skoda':'Skoda','шкода':'Skoda',
+    'chevrolet':'Chevrolet','шевроле':'Chevrolet','шеврале':'Chevrolet','шевролет':'Chevrolet',
+    'ford':'Ford','форд':'Ford',
+    'mazda':'Mazda','мазда':'Mazda','масда':'Mazda',
+    'honda':'Honda','хонда':'Honda','хонта':'Honda',
+    'bmw':'BMW','бмв':'BMW',
+    'mercedes':'Mercedes','мерседес':'Mercedes',
+    'audi':'Audi','ауди':'Audi',
+    'mitsubishi':'Mitsubishi','мицубиши':'Mitsubishi',
+  };
+  for (const [k,v] of Object.entries(map)) { if (lower.includes(k)) return v; }
+  return null;
+}
+
+function looksLikeBrandQuery(t) {
+  const l = t.toLowerCase();
+  return /для\s+\w+/.test(l) || /\w+\s+(посмотри|нужн|есть|покажи)/.test(l);
+}
+
+function isAffirmative(t) {
+  return ['да','давай','ок','окей','хочу','конечно','угу','ага','поищи','найди','покажи','можно']
+    .some(k => t.toLowerCase().includes(k));
+}
+
+// ── localStorage history ──
+function saveHistory() {
+  const items = [...msgs.querySelectorAll('.msg')].map(m => ({
+    role: m.classList.contains('user') ? 'user' : 'bot',
+    html: m.querySelector('.bubble')?.innerHTML || ''
+  }));
+  try { localStorage.setItem('as_history', JSON.stringify(items.slice(-20))); } catch(e){}
+}
+
+function restoreHistory() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('as_history') || '[]');
+    if (!saved.length) return;
+    // Clear welcome
+    msgs.innerHTML = '';
+    saved.forEach(({role, html}) => {
+      const d = document.createElement('div');
+      d.className = `msg ${role}`;
+      d.innerHTML = `<div class="avatar">${role==='user'?'ВЫ':'А'}</div><div><div class="bubble">${html}</div></div>`;
+      msgs.appendChild(d);
+    });
+    msgs.scrollTop = msgs.scrollHeight;
+    addMsg('bot', 'С возвращением! Продолжаем? 🙂');
+  } catch(e){}
+}
+
+// Restore on load if history exists
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('as_history');
+  if (saved && JSON.parse(saved).length > 1) restoreHistory();
+});
+
+// ── Main send ──
+async function send() {
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = ''; inp.style.height = 'auto';
+
+  const carTag = car?.brand_model || null;
+  addMsg('user', text, carTag);
+  lastTopic = text;
+  dialogCount++;
+
+  // General brand query → straight to API
+  if (isGeneralQuery(text)) {
+    btnSnd.disabled = true;
+    await sendToApi(text);
+    btnSnd.disabled = false;
+    inp.focus();
+    return;
+  }
+
+  // Awaiting model change
+  if (awaitingModel) {
+    awaitingModel = false;
+    if (isAffirmative(text)) { await showModelPicker(lastTopic, 'Выбери другую модель:'); return; }
+  }
+
+  // Awaiting contact
+  if (awaitingContact) {
+    if (isAffirmative(text)) { showContactForm(); return; }
+    awaitingContact = false;
+  }
+
+  // Product query without car → picker
+  if (isProductQuery(text) && !car) {
+    const lower = text.toLowerCase();
+    const brand = detectBrand(lower);
+    if (!brand && looksLikeBrandQuery(lower)) {
+      addMsg('bot', 'Не совсем понял марку — выбери из списка:');
+      await showModelPicker(text, 'Для какой модели ищем?', null);
+      return;
+    }
+    await showModelPicker(text, 'Для какой модели ищем?', brand);
+    return;
+  }
+
+  btnSnd.disabled = true;
+  await sendToApi(text);
+  btnSnd.disabled = false;
+  inp.focus();
+}
+
+async function sendToApi(text) {
+  addTyping(); btnSnd.disabled = true;
+  try {
+    const res  = await fetch('/chat', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ message: text, car })
+    });
+    const data = await res.json();
+    rmTyping();
+    const answer = res.ok ? data.answer : ('⚠️ ' + (data.detail||'Ошибка сервера'));
+    addMsg('bot', answer);
+    saveHistory();
+
+    const nothingFound = answer.includes('нет в наличии') || answer.includes('ничего нет') || answer.includes('сейчас нет');
+    if (nothingFound) { showNotFoundActions(); }
+    else if (answer.includes('оставь') || answer.includes('контакт')) { awaitingContact = true; }
+
+    // Show rating after 3 exchanges
+    if (dialogCount >= 3 && dialogCount % 3 === 0) {
+      setTimeout(showRating, 1200);
+    }
+  } catch {
+    rmTyping();
+    addMsg('bot', '⚠️ Нет связи с сервером. Попробуй чуть позже.');
+  }
+  btnSnd.disabled = false; inp.focus();
+}
+
+inp.addEventListener('input', () => {
+  inp.style.height = 'auto';
+  inp.style.height = Math.min(inp.scrollHeight, 100) + 'px';
+});
+inp.addEventListener('keydown', e => {
+  if (e.key==='Enter' && e.shiftKey) { e.preventDefault(); send(); }
+});
+</script>
+</body>
+</html>
     --surface2:  #F0F2F5;
     --border:    #E0E3EB;
     --blue:      #005BFF;
