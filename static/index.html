@@ -413,16 +413,24 @@
 <footer>Shift+Enter — отправить · АвтоСклад © 2025</footer>
 
 <script>
-const BRANDS = {
-  'Lada':       ['Vesta 1.6','Granta 1.6','Largus 1.6','Niva 1.7','XRAY 1.6'],
-  'Kia':        ['Rio III 1.6','Sportage III 2.0','Ceed II 1.4','Sorento II 2.4','Soul I 1.6'],
-  'Hyundai':    ['Solaris I 1.6','Solaris II 1.4','Creta 1.6','Tucson III 2.0','Elantra V 1.8'],
-  'Toyota':     ['Camry VII 2.5','Corolla X 1.6','RAV4 IV 2.0','Land Cruiser 200 4.5'],
-  'Volkswagen': ['Polo V 1.6','Passat B7 1.8','Tiguan II 1.4','Golf VI 1.4'],
-  'Renault':    ['Logan II 1.6','Sandero II 1.6','Duster I 2.0','Megane III 1.5'],
-  'Nissan':     ['Qashqai II 2.0','X-Trail T32 2.0','Almera G15 1.6','Teana L33 2.5'],
-  'Skoda':      ['Octavia A7 1.8','Rapid I 1.6','Superb III 1.8','Kodiaq 2.0'],
-};
+// BRANDS загружается динамически из прайса
+let BRANDS = {};
+let brandsLoaded = false;
+
+async function loadBrands() {
+  if (brandsLoaded) return;
+  try {
+    const res = await fetch('/available-models');
+    if (res.ok) {
+      BRANDS = await res.json();
+      brandsLoaded = true;
+      sbInit(); // перестраиваем сайдбар с реальными данными
+    }
+  } catch(e) { console.warn('Failed to load brands:', e); }
+}
+
+// Загружаем сразу при старте
+loadBrands();
 
 let car            = null;
 let pendingQuery   = null;
@@ -435,6 +443,11 @@ let sbBrand = null, sbModel = null;
 
 function sbInit() {
   const el = document.getElementById('sb-brands');
+  el.innerHTML = '';
+  if (Object.keys(BRANDS).length === 0) {
+    el.innerHTML = '<span style="font-size:11px;color:var(--muted)">Загрузка...</span>';
+    return;
+  }
   Object.keys(BRANDS).forEach(b => {
     const btn = document.createElement('button');
     btn.className = 'sb-brand-btn';
@@ -483,7 +496,7 @@ function sbClearCar() {
   document.querySelectorAll('.sb-brand-btn').forEach(b => b.classList.remove('active'));
 }
 
-sbInit();
+// sbInit вызывается после loadBrands()
 
 // ── Chat helpers ──
 const msgs   = document.getElementById('messages');
@@ -516,9 +529,12 @@ function addTyping() {
 function rmTyping() { document.getElementById('typing')?.remove(); }
 
 // ── Model picker in chat ──
-function showModelPicker(query, title, preselectedBrand) {
+async function showModelPicker(query, title, preselectedBrand) {
   pendingQuery = query;
   const pickerTitle = title || 'Для какой модели ищем?';
+
+  // Загружаем марки если ещё не загружены
+  if (!brandsLoaded) await loadBrands();
 
   const wrapper = document.createElement('div');
   wrapper.className = 'msg bot'; wrapper.id = 'model-picker-msg';
@@ -527,7 +543,10 @@ function showModelPicker(query, title, preselectedBrand) {
   const picker = document.createElement('div');
   picker.className = 'model-picker';
 
-  let selBrand = preselectedBrand || Object.keys(BRANDS)[0], selModel = null;
+  // Если задана марка и она есть в прайсе — предвыбираем её, иначе первая доступная
+  const availableBrands = Object.keys(BRANDS);
+  let selBrand = (preselectedBrand && BRANDS[preselectedBrand]) ? preselectedBrand : availableBrands[0];
+  let selModel = null;
 
   function render() {
     picker.innerHTML = `
@@ -691,7 +710,7 @@ async function send() {
   // Awaiting model change
   if (awaitingModel) {
     awaitingModel = false;
-    if (isAffirmative(text)) { showModelPicker(lastTopic, 'Выбери другую модель:'); return; }
+    if (isAffirmative(text)) { await showModelPicker(lastTopic, 'Выбери другую модель:'); return; }
   }
 
   // Awaiting contact
@@ -703,7 +722,7 @@ async function send() {
   // Правка #2: конкретная запчасть — пикер с нужной маркой предвыбранной
   if (isProductQuery(text) && !car) {
     const detectedBrand = detectBrand(text.toLowerCase());
-    showModelPicker(text, 'Для какой модели ищем?', detectedBrand);
+    await showModelPicker(text, 'Для какой модели ищем?', detectedBrand);
     return;
   }
 
