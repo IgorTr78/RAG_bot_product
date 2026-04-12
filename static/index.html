@@ -387,7 +387,7 @@
     <div id="messages">
       <div class="msg bot">
         <div class="avatar">А</div>
-        <div class="bubble">Добрый день! Меня зовут Александр, я помогу тебе с подбором! 👋<br><br>Выбери свой автомобиль слева — и я сразу проверю совместимость. Или просто спрашивай, что нужно.<br><br>Например: «Масляный фильтр», «Тормозные колодки для Kia», «Есть свечи?»</div>
+        <div class="bubble">Привет! Я Александр 👋 Помогу быстро подобрать нужные запчасти для твоего авто.<br><br>Выбери машину слева — проверю совместимость за секунду. Или просто напиши, что нужно 🙂</div>
       </div>
     </div>
 
@@ -516,9 +516,9 @@ function addTyping() {
 function rmTyping() { document.getElementById('typing')?.remove(); }
 
 // ── Model picker in chat ──
-function showModelPicker(query, title) {
+function showModelPicker(query, title, preselectedBrand) {
   pendingQuery = query;
-  const pickerTitle = title || 'Для какого автомобиля ищем?';
+  const pickerTitle = title || 'Для какой модели ищем?';
 
   const wrapper = document.createElement('div');
   wrapper.className = 'msg bot'; wrapper.id = 'model-picker-msg';
@@ -527,7 +527,7 @@ function showModelPicker(query, title) {
   const picker = document.createElement('div');
   picker.className = 'model-picker';
 
-  let selBrand = Object.keys(BRANDS)[0], selModel = null;
+  let selBrand = preselectedBrand || Object.keys(BRANDS)[0], selModel = null;
 
   function render() {
     picker.innerHTML = `
@@ -624,13 +624,43 @@ async function submitContact() {
 }
 
 // ── Intent helpers ──
+const PRODUCT_KW = ['фильтр','колодки','свечи','масло','ремень','помпа','стойка','рычаг',
+  'наконечник','амортизатор','диск','термостат','радиатор','генератор','стартер',
+  'насос','прокладка','подшипник','сальник','запчасть','деталь'];
+
+const GENERAL_KW = ['что есть','что у вас','что имеется','покажи всё','покажи все',
+  'что найдете','что найдёте','весь каталог','все запчасти','ассортимент'];
+
 function isProductQuery(text) {
-  const kw = ['фильтр','колодки','свечи','масло','ремень','помпа','стойка','рычаг',
-    'наконечник','амортизатор','диск','термостат','радиатор','генератор','стартер',
-    'насос','прокладка','подшипник','сальник','запчасть','деталь','есть','цена',
-    'стоит','найди','покажи','подбери'];
   const lower = text.toLowerCase();
-  return kw.some(k => lower.includes(k));
+  return PRODUCT_KW.some(k => lower.includes(k));
+}
+
+// Обобщённый запрос по марке/модели — сразу в API без пикера
+function isGeneralQuery(text) {
+  const lower = text.toLowerCase();
+  if (GENERAL_KW.some(k => lower.includes(k))) return true;
+  // «что есть для Kia», «есть что для Лады» и т.п.
+  if ((lower.includes('что') || lower.includes('есть') || lower.includes('покажи')) && detectBrand(lower)) return true;
+  return false;
+}
+
+// Определяем марку из текста запроса
+function detectBrand(lower) {
+  const map = {
+    'lada':'Lada','лада':'Lada','ваз':'Lada',
+    'kia':'Kia','киа':'Kia',
+    'hyundai':'Hyundai','хендай':'Hyundai','хёндай':'Hyundai',
+    'toyota':'Toyota','тойота':'Toyota',
+    'volkswagen':'Volkswagen','фольксваген':'Volkswagen','фольцваген':'Volkswagen','vw':'Volkswagen',
+    'renault':'Renault','рено':'Renault',
+    'nissan':'Nissan','ниссан':'Nissan',
+    'skoda':'Skoda','шкода':'Skoda',
+  };
+  for (const [key, val] of Object.entries(map)) {
+    if (lower.includes(key)) return val;
+  }
+  return null;
 }
 
 function isAffirmative(text) {
@@ -659,14 +689,24 @@ async function send() {
     awaitingContact = false;
   }
 
-  // Product query without car
-  if (isProductQuery(text) && !car) {
-    lastTopic = text;
-    showModelPicker(text);
+  lastTopic = text;
+
+  // Правка #3: общий запрос по марке/модели — сразу в API без пикера
+  if (isGeneralQuery(text)) {
+    btnSnd.disabled = true;
+    await sendToApi(text);
+    btnSnd.disabled = false;
+    inp.focus();
     return;
   }
 
-  lastTopic = text;
+  // Правка #2: конкретная запчасть — пикер с нужной маркой предвыбранной
+  if (isProductQuery(text) && !car) {
+    const detectedBrand = detectBrand(text.toLowerCase());
+    showModelPicker(text, 'Для какой модели ищем?', detectedBrand);
+    return;
+  }
+
   btnSnd.disabled = true;
   await sendToApi(text);
   btnSnd.disabled = false;
