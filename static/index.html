@@ -653,7 +653,7 @@ function showNotFoundActions() {
     <p>Что сделаем?</p>
     <div class="action-row">
       <button class="action-btn primary" onclick="onNotifyMe()">🔔 Сообщить о появлении</button>
-      <button class="action-btn ghost" onclick="onSearchOther()">🔍 Поискать другое</button>
+      <button class="action-btn ghost" onclick="onSearchOther()">🔍 Выбрать другую запчасть</button>
     </div>
   `;
   wrapper.appendChild(avatar); wrapper.appendChild(box);
@@ -670,7 +670,7 @@ function onNotifyMe() {
 function onSearchOther() {
   document.getElementById('not-found-actions')?.remove();
   inp.focus();
-  addMsg('bot', 'Конечно! Напиши что ищешь — посмотрим 🙂');
+  addMsg('bot', 'Конечно! Напиши какую запчасть ищем — подберём 🙂');
 }
 
 async function submitContact() {
@@ -724,22 +724,54 @@ function isGeneralQuery(text) {
   return false;
 }
 
-// Определяем марку из текста запроса
+// Определяем марку из текста запроса (включая опечатки)
 function detectBrand(lower) {
   const map = {
-    'lada':'Lada','лада':'Lada','ваз':'Lada',
-    'kia':'Kia','киа':'Kia',
-    'hyundai':'Hyundai','хендай':'Hyundai','хёндай':'Hyundai',
-    'toyota':'Toyota','тойота':'Toyota',
-    'volkswagen':'Volkswagen','фольксваген':'Volkswagen','фольцваген':'Volkswagen','vw':'Volkswagen',
-    'renault':'Renault','рено':'Renault',
-    'nissan':'Nissan','ниссан':'Nissan',
-    'skoda':'Skoda','шкода':'Skoda',
+    // Lada
+    'lada':'Lada','лада':'Lada','ваз':'Lada','лад ':'Lada',
+    // Kia
+    'kia':'Kia','киа':'Kia','киа ':'Kia',
+    // Hyundai
+    'hyundai':'Hyundai','хендай':'Hyundai','хёндай':'Hyundai','хундай':'Hyundai','хюндай':'Hyundai',
+    // Toyota
+    'toyota':'Toyota','тойота':'Toyota','тайота':'Toyota','тоёта':'Toyota',
+    // Volkswagen
+    'volkswagen':'Volkswagen','фольксваген':'Volkswagen','фольцваген':'Volkswagen',
+    'фальцваген':'Volkswagen','фольксвагн':'Volkswagen','vw':'Volkswagen','вольксваген':'Volkswagen',
+    // Renault
+    'renault':'Renault','рено':'Renault','рено ':'Renault','ренол':'Renault',
+    // Nissan
+    'nissan':'Nissan','ниссан':'Nissan','нисан':'Nissan','нисcан':'Nissan',
+    // Skoda
+    'skoda':'Skoda','шкода':'Skoda','шкода ':'Skoda',
+    // Chevrolet
+    'chevrolet':'Chevrolet','шевроле':'Chevrolet','шеврале':'Chevrolet','шевролет':'Chevrolet',
+    // Ford
+    'ford':'Ford','форд':'Ford',
+    // Mazda
+    'mazda':'Mazda','мазда':'Mazda','масда':'Mazda',
+    // Honda
+    'honda':'Honda','хонда':'Honda','хонта':'Honda',
+    // BMW
+    'bmw':'BMW','бмв':'BMW','бэмвэ':'BMW',
+    // Mercedes
+    'mercedes':'Mercedes','мерседес':'Mercedes','мерс ':'Mercedes',
+    // Audi
+    'audi':'Audi','ауди':'Audi',
+    // Mitsubishi
+    'mitsubishi':'Mitsubishi','мицубиши':'Mitsubishi','мицубishi':'Mitsubishi',
   };
   for (const [key, val] of Object.entries(map)) {
     if (lower.includes(key)) return val;
   }
   return null;
+}
+
+// Проверяем похож ли запрос на попытку назвать марку (но мы не распознали)
+function looksLikeBrandQuery(text) {
+  const lower = text.toLowerCase();
+  // Паттерны: "для X", "X посмотри", "X нужны"
+  return /для\s+\w+/.test(lower) || /\w+\s+(посмотри|нужн|есть|покажи)/.test(lower);
 }
 
 function isAffirmative(text) {
@@ -779,9 +811,16 @@ async function send() {
     awaitingContact = false;
   }
 
-  // Правка #2: конкретная запчасть — пикер с нужной маркой предвыбранной
+  // Правка #1+#2: конкретная запчасть — пикер с нужной маркой предвыбранной
   if (isProductQuery(text) && !car) {
-    const detectedBrand = detectBrand(text.toLowerCase());
+    const lower = text.toLowerCase();
+    const detectedBrand = detectBrand(lower);
+    // Если в запросе упоминается марка, но мы её не распознали — переспросить
+    if (!detectedBrand && looksLikeBrandQuery(lower)) {
+      addMsg('bot', 'Не совсем понял марку — выбери из списка:');
+      await showModelPicker(text, 'Для какой модели ищем?', null);
+      return;
+    }
     await showModelPicker(text, 'Для какой модели ищем?', detectedBrand);
     return;
   }
