@@ -331,6 +331,18 @@
   }
   .rating-star:hover, .rating-star.lit { filter: none; opacity: 1; transform: scale(1.15); }
 
+  /* ── Reset button ── */
+  .reset-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 12px;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    background: var(--surface2); color: var(--muted);
+    font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
+    cursor: pointer; transition: all .15s; white-space: nowrap;
+  }
+  .reset-btn:hover { border-color: var(--red); color: var(--red); background: #FFF0EE; }
+  .reset-btn svg { width: 13px; height: 13px; }
+
   /* ── Dynamic chips ── */
   .chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:9px; }
   .chip {
@@ -472,6 +484,13 @@
         <div class="agent-speed">⚡ Отвечу в течение 30 секунд!</div>
         <div class="agent-sub">консультант · запчасти</div>
       </div>
+      <button class="reset-btn" onclick="resetChat()" title="Сбросить чат">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+        </svg>
+        Сбросить
+      </button>
       <div class="agent-rating">
         <span class="stars">★★★★★</span>
         <span class="rating-count">4.9</span>
@@ -941,6 +960,43 @@ window.addEventListener('load', () => {
   const saved = localStorage.getItem('as_history');
   if (saved && JSON.parse(saved).length > 1) restoreHistory();
 });
+
+// ── Reset chat ──
+function resetChat() {
+  // Clear localStorage
+  try { localStorage.removeItem('as_history'); } catch(e) {}
+
+  // Reset state
+  car = null; pendingQuery = null;
+  awaitingContact = false; awaitingModel = false;
+  lastTopic = ''; dialogCount = 0;
+
+  // Reset sidebar
+  sbClearCar();
+
+  // Clear messages and show welcome
+  msgs.innerHTML = '';
+  const d = document.createElement('div');
+  d.className = 'msg bot';
+  d.innerHTML = `<div class="avatar">А</div><div>
+    <div class="bubble">Привет! Я Александр 👋 Помогу быстро подобрать нужные запчасти для твоего авто.<br><br>Выбери машину слева — проверю совместимость за секунду. Или просто напиши, что нужно 🙂</div>
+    <div class="msg-time">${nowTime()}</div>
+  </div>`;
+  msgs.appendChild(d);
+
+  // Reset chips
+  updateChips(false);
+
+  // Restart proactive timer
+  clearTimeout(proactiveTimer);
+  proactiveTimer = setTimeout(() => {
+    if (dialogCount === 0) {
+      addMsg('bot', 'Кстати, если не знаешь артикул — просто напиши марку авто и что нужно. Подберём сами 🙂');
+    }
+  }, 10000);
+
+  inp.focus();
+}
 
 // ── Main send ──
 async function send() {
