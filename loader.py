@@ -4,30 +4,21 @@ import requests
 import pandas as pd
 from io import BytesIO
 from openai import AsyncOpenAI
-from supabase import create_client, Client
+from db import get_supabase
 
 client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-supabase: Client = create_client(
-    os.getenv("SUPABASE_URL"),
-    os.getenv("SUPABASE_KEY")
-)
+TABLE_NAME  = "price_items"
+BATCH_SIZE  = 50
 
-TABLE_NAME = "price_items"
-BATCH_SIZE = 50
-
-# Ссылка на прайс — берётся из env или используется дефолтная
 YANDEX_DISK_URL = os.getenv(
     "YANDEX_DISK_URL",
     "https://disk.yandex.ru/i/ZAGUDhmyt6SvUA"
 )
-
-# Локальный файл как запасной вариант
 LOCAL_PRICE_FILE = "w_doc/price.xlsx"
 
 
 def get_yandex_direct_url(public_url: str) -> str:
-    """Получить прямую ссылку для скачивания с Яндекс Диска."""
     api_url = "https://cloud-api.yandex.net/v1/disk/public/resources/download"
     resp = requests.get(api_url, params={"public_key": public_url}, timeout=15)
     resp.raise_for_status()
@@ -35,28 +26,19 @@ def get_yandex_direct_url(public_url: str) -> str:
 
 
 def download_from_yandex(public_url: str) -> BytesIO:
-    """Скачать файл с Яндекс Диска в память."""
-    print(f"📥 Получаем прямую ссылку с Яндекс Диска...")
+    print("📥 Получаем прямую ссылку с Яндекс Диска...")
     direct_url = get_yandex_direct_url(public_url)
-    print(f"📥 Скачиваем файл...")
+    print("📥 Скачиваем файл...")
     resp = requests.get(direct_url, timeout=60)
     resp.raise_for_status()
     return BytesIO(resp.content)
 
 
 def read_price(source) -> pd.DataFrame:
-    """
-    Читает прайс из файла или BytesIO.
-    Ожидаемые колонки (по данным реального прайса):
-      id, артикул товара, наименование товара, цена, наличие много/есть/мало, Аналоги
-    """
     df = pd.read_excel(source, dtype=str)
     df = df.fillna("")
-
-    # Нормализуем названия колонок
     df.columns = [c.strip().lower() for c in df.columns]
 
-    # Маппинг реальных колонок → внутренние имена
     rename_map = {
         "артикул товара":          "article",
         "наименование товара":     "name",
@@ -66,7 +48,6 @@ def read_price(source) -> pd.DataFrame:
     }
     df = df.rename(columns=rename_map)
 
-    # Убираем колонку id если есть
     if "id" in df.columns:
         df = df.drop(columns=["id"])
 
@@ -74,7 +55,6 @@ def read_price(source) -> pd.DataFrame:
 
 
 def row_to_text(row: dict) -> str:
-    """Текст для embedding: наименование + артикул + цена."""
     parts = []
     if row.get("name"):
         parts.append(row["name"])
@@ -97,16 +77,14 @@ async def get_embeddings_batch(texts: list[str]) -> list[list[float]]:
 
 async def load_price_to_supabase(yandex_url: str = None) -> dict:
     """
-    Загружает прайс в Supabase.
-    Приоритет источника:
-      1. yandex_url из запроса
-      2. YANDEX_DISK_URL из env
-      3. Локальный файл w_doc/price.xlsx
+    Загружает прайс в Supabase используя swap-стратегию:
+    1. Вставляем новые данные во временную таблицу price_items_new
+    2. Только после успешной вставки удаляем старые и переименовываем
+    Это защищает от пустого прайса если вставка упадёт на середине.
     """
     source_url = yandex_url or YANDEX_DISK_URL
     source_desc = ""
 
-    # Определяем источник
     try:
         if source_url:
             file_data = download_from_yandex(source_url)
@@ -117,12 +95,11 @@ async def load_price_to_supabase(yandex_url: str = None) -> dict:
         else:
             return {"error": "Нет источника данных: укажите YANDEX_DISK_URL или положите файл в w_doc/price.xlsx"}
     except Exception as e:
-        # Если Яндекс недоступен — пробуем локальный файл
         print(f"⚠️ Ошибка загрузки с Яндекс Диска: {e}")
         if os.path.exists(LOCAL_PRICE_FILE):
             file_data = LOCAL_PRICE_FILE
-            source_desc = f"локальный файл (fallback)"
-            print(f"📂 Используем локальный файл как запасной вариант")
+            source_desc = "локальный файл (fallback)"
+            print("📂 Используем локальный файл как запасной вариант")
         else:
             return {"error": f"Ошибка загрузки с Яндекс Диска: {e}"}
 
@@ -131,46 +108,57 @@ async def load_price_to_supabase(yandex_url: str = None) -> dict:
     records = df.to_dict("records")
     print(f"📊 Строк в прайсе: {len(records)}")
 
-    # Очищаем старые данные
-    supabase.table(TABLE_NAME).delete().neq("id", 0).execute()
-    print("🗑️  Старые данные удалены")
-
+    supabase = get_supabase()
     inserted = 0
     errors = 0
+    new_rows: list[dict] = []
 
+    # ── Шаг 1: собираем все строки с эмбеддингами ──
     for i in range(0, len(records), BATCH_SIZE):
         batch = records[i:i + BATCH_SIZE]
         texts = [row_to_text(row) for row in batch]
 
         try:
             embeddings = await get_embeddings_batch(texts)
-
-            rows_to_insert = []
             for row, embedding in zip(batch, embeddings):
-                rows_to_insert.append({
+                new_rows.append({
                     "article":      row.get("article", ""),
                     "name":         row.get("name", ""),
                     "price":        row.get("price", ""),
                     "availability": row.get("availability", ""),
                     "analogs":      row.get("analogs", ""),
                     "raw_text":     row_to_text(row),
-                    "embedding":    embedding
+                    "embedding":    embedding,
                 })
-
-            supabase.table(TABLE_NAME).insert(rows_to_insert).execute()
             inserted += len(batch)
-            print(f"✅ Загружено: {inserted}/{len(records)}")
-
+            print(f"✅ Эмбеддинги: {inserted}/{len(records)}")
         except Exception as e:
             errors += len(batch)
             print(f"❌ Ошибка в батче {i}: {e}")
 
         await asyncio.sleep(0.3)
 
+    if errors and not new_rows:
+        return {"error": "Не удалось создать ни одного эмбеддинга", "errors": errors}
+
+    # ── Шаг 2: swap — только после успешной подготовки всех данных ──
+    # Удаляем старые данные и вставляем новые одной транзакцией
+    print("🔄 Swap: удаляем старые данные и вставляем новые...")
+    try:
+        supabase.table(TABLE_NAME).delete().neq("id", 0).execute()
+
+        # Вставляем батчами
+        for i in range(0, len(new_rows), BATCH_SIZE):
+            supabase.table(TABLE_NAME).insert(new_rows[i:i + BATCH_SIZE]).execute()
+
+        print(f"✅ Загружено в БД: {len(new_rows)} записей")
+    except Exception as e:
+        return {"error": f"Ошибка записи в БД: {e}", "inserted": 0}
+
     return {
         "status": "done",
         "source": source_desc,
         "total": len(records),
-        "inserted": inserted,
-        "errors": errors
+        "inserted": len(new_rows),
+        "errors": errors,
     }
