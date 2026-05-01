@@ -527,7 +527,7 @@
   </div>
 </div>
 
-<footer>Shift+Enter — отправить · АвтоСклад © 2025</footer>
+<footer>Enter — отправить · Shift+Enter — новая строка · АвтоСклад © 2025</footer>
 
 <script>
 // ── Init welcome time ──
@@ -1144,7 +1144,7 @@ inp.addEventListener('input', () => {
   inp.style.height = Math.min(inp.scrollHeight, 100) + 'px';
 });
 inp.addEventListener('keydown', e => {
-  if (e.key==='Enter' && e.shiftKey) { e.preventDefault(); send(); }
+  if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send(); }
 });
 </script>
 </body>
