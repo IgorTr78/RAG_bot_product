@@ -202,7 +202,7 @@
 
   .bubble {
     max-width: 76%; padding: 10px 14px; border-radius: var(--radius);
-    font-size: 13px; line-height: 1.65; word-break: break-word;
+    font-size: 13px; line-height: 1.65; word-break: break-word; overflow-wrap: anywhere; min-width: 0;
   }
   .msg.bot  .bubble {
     background: var(--surface2); border: 1px solid var(--border);
@@ -712,17 +712,22 @@ async function showModelPicker(query, title, preselectedBrand) {
   function render() {
     if (!availBrands.length) { picker.innerHTML = '<div class="picker-title">Загрузка...</div>'; return; }
     if (!selBrand || !BRANDS[selBrand]) selBrand = availBrands[0];
+
+    const showBrandTabs = !preselectedBrand;
+
     picker.innerHTML = `
       <div class="picker-title">${pickerTitle}</div>
-      <div class="brand-tabs">
+      ${showBrandTabs ? `<div class="brand-tabs">
         ${availBrands.map(b=>`<div class="brand-tab${b===selBrand?' active':''}" data-brand="${b}">${b}</div>`).join('')}
-      </div>
+      </div>` : ''}
       <div class="model-list">
         ${(BRANDS[selBrand]||[]).map(m=>`<button class="model-btn${m===selModel?' selected':''}" data-model="${m}">${m}</button>`).join('')}
       </div>
       <button class="picker-confirm${selModel?' visible':''}" id="picker-ok">Искать для ${selBrand} ${selModel||''}</button>
     `;
-    picker.querySelectorAll('.brand-tab').forEach(t => { t.onclick = () => { selBrand=t.dataset.brand; selModel=null; render(); }; });
+    if (showBrandTabs) {
+      picker.querySelectorAll('.brand-tab').forEach(t => { t.onclick = () => { selBrand=t.dataset.brand; selModel=null; render(); }; });
+    }
     picker.querySelectorAll('.model-btn').forEach(b => { b.onclick = () => { selModel=b.dataset.model; render(); }; });
     const ok = picker.querySelector('#picker-ok');
     if (ok) ok.onclick = () => confirmPick(selBrand, selModel);
@@ -1039,16 +1044,41 @@ async function send() {
     awaitingContact = false;
   }
 
-  // Product query without car → picker
+  // Product query without car
   if (isProductQuery(text) && !car) {
     const lower = text.toLowerCase();
     const brand = detectBrand(lower);
-    if (!brand && looksLikeBrandQuery(lower)) {
+
+    if (brand) {
+      // Проверяем — есть ли в запросе конкретная модель
+      const brandModels = BRANDS[brand] || [];
+      const modelMentioned = brandModels.some(m =>
+        lower.includes(m.toLowerCase().split(' ')[0].toLowerCase())
+      );
+
+      if (modelMentioned) {
+        // Модель уже упомянута — ищем сразу
+        btnSnd.disabled = true;
+        await sendToApi(text);
+        btnSnd.disabled = false;
+        inp.focus();
+        return;
+      } else {
+        // Марка есть, модель не указана — уточняем модель
+        addMsg('bot', `Для какой модели ${brand} ищем?`);
+        await showModelPicker(text, `Выбери модель ${brand}:`, brand);
+        return;
+      }
+    }
+
+    if (looksLikeBrandQuery(lower)) {
       addMsg('bot', 'Не совсем понял марку — выбери из списка:');
       await showModelPicker(text, 'Для какой модели ищем?', null);
       return;
     }
-    await showModelPicker(text, 'Для какой модели ищем?', brand);
+
+    // Марка не указана — показываем пикер
+    await showModelPicker(text, 'Для какой модели ищем?', null);
     return;
   }
 
