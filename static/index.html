@@ -1057,28 +1057,25 @@ async function send() {
       );
 
       if (modelMentioned) {
-        // Модель уже упомянута — ищем сразу
+        // Марка + модель есть — ищем сразу
         btnSnd.disabled = true;
         await sendToApi(text);
         btnSnd.disabled = false;
         inp.focus();
         return;
       } else {
-        // Марка есть, модель не указана — уточняем модель
+        // Марка есть, модель не указана — уточняем только модель
         addMsg('bot', `Для какой модели ${brand} ищем?`);
         await showModelPicker(text, `Выбери модель ${brand}:`, brand);
         return;
       }
     }
 
-    if (looksLikeBrandQuery(lower)) {
-      addMsg('bot', 'Не совсем понял марку — выбери из списка:');
-      await showModelPicker(text, 'Для какой модели ищем?', null);
-      return;
-    }
-
-    // Марка не указана — показываем пикер
-    await showModelPicker(text, 'Для какой модели ищем?', null);
+    // Марка не указана — ищем по всему прайсу без пикера
+    btnSnd.disabled = true;
+    await sendToApi(text);
+    btnSnd.disabled = false;
+    inp.focus();
     return;
   }
 
