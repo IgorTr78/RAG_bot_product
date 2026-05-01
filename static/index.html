@@ -201,7 +201,7 @@
   .msg.user .avatar { background: var(--navy); color: #fff; }
 
   .bubble {
-    max-width: 76%; padding: 10px 14px; border-radius: var(--radius);
+    max-width: 88%; padding: 10px 14px; border-radius: var(--radius);
     font-size: 13px; line-height: 1.65; word-break: break-word; overflow-wrap: anywhere; min-width: 0;
   }
   .msg.bot  .bubble {
@@ -501,7 +501,7 @@
       <div class="msg bot">
         <div class="avatar">А</div>
         <div>
-          <div class="bubble">Привет! Я Александр 👋 Помогу быстро подобрать нужные запчасти для твоего авто.<br><br>Выбери машину слева — проверю совместимость за секунду. Или просто напиши, что нужно 🙂</div>
+          <div class="bubble">Здравствуйте! Я Александр 👋 Помогу подобрать нужные запчасти для Вашего автомобиля.<br><br>Выберите марку и модель слева — проверю совместимость. Или просто напишите, что нужно 🙂</div>
           <div class="msg-time" id="welcome-time"></div>
         </div>
       </div>
@@ -518,7 +518,7 @@
         <span class="chip" onclick="fill(this)">Часы работы</span>
       </div>
       <div class="input-row">
-        <textarea id="user-input" rows="1" placeholder="Напишите что ищете..." maxlength="500"></textarea>
+        <textarea id="user-input" rows="1" placeholder="Напишите, что ищете..." maxlength="500"></textarea>
         <button id="send-btn" onclick="send()" title="Отправить">
           <svg viewBox="0 0 24 24"><path d="M2 21L23 12 2 3v7l15 2-15 2v7z"/></svg>
         </button>
@@ -588,7 +588,7 @@ function pushHistory(role, content) {
 // ── Proactive message (10s after open if no activity) ──
 let proactiveTimer = setTimeout(() => {
   if (dialogCount === 0) {
-    addMsg('bot', 'Кстати, если не знаешь артикул — просто напиши марку авто и что нужно. Подберём сами 🙂');
+    addMsg('bot', 'Кстати, если не знаете артикул — просто напишите марку авто и что нужно. Подберём сами 🙂');
   }
 }, 10000);
 
@@ -694,7 +694,7 @@ function rmTyping() { document.getElementById('typing')?.remove(); }
 // ── Model picker ──
 async function showModelPicker(query, title, preselectedBrand) {
   pendingQuery = query;
-  const pickerTitle = title || 'Для какой модели ищем?';
+  const pickerTitle = title || 'Для какой модели подбираем?';
   if (!brandsLoaded) await loadBrands();
 
   document.getElementById('model-picker-msg')?.remove();
@@ -746,7 +746,7 @@ function confirmPick(brand, model) {
   document.getElementById('sb-saved-view').style.display  = 'block';
   document.getElementById('mobile-car-label').textContent = full;
   updateChips(true);
-  addMsg('bot', `Отлично, ищу для ${full}! Секунду...`);
+  addMsg('bot', `Отлично, ищу для ${full}! Одну секунду...`);
   if (pendingQuery) { const q = pendingQuery; pendingQuery = null; sendToApi(q); }
 }
 
@@ -853,7 +853,7 @@ function onNotifyMe() {
 }
 function onSearchOther() {
   document.getElementById('not-found-actions')?.remove();
-  addMsg('bot', 'Конечно! Напиши какую запчасть ищем — подберём 🙂');
+  addMsg('bot', 'Конечно! Напишите, какую запчасть подобрать — с удовольствием помогу 🙂');
   inp.focus();
 }
 
@@ -883,7 +883,7 @@ function showRating() {
 
 function submitRating(val) {
   document.getElementById('rating-msg')?.remove();
-  const txt = val >= 4 ? `Спасибо! Рад был помочь 🙌` : `Спасибо за честность — буду стараться лучше!`;
+  const txt = val >= 4 ? `Спасибо за оценку! Рад был помочь 🙌` : `Спасибо за честность — постараемся стать лучше!`;
   addMsg('bot', txt);
   // Save rating (fire and forget)
   fetch('/contacts', {
@@ -993,7 +993,7 @@ function resetChat() {
   const d = document.createElement('div');
   d.className = 'msg bot';
   d.innerHTML = `<div class="avatar">А</div><div>
-    <div class="bubble">Привет! Я Александр 👋 Помогу быстро подобрать нужные запчасти для твоего авто.<br><br>Выбери машину слева — проверю совместимость за секунду. Или просто напиши, что нужно 🙂</div>
+    <div class="bubble">Здравствуйте! Я Александр 👋 Помогу подобрать нужные запчасти для Вашего автомобиля.<br><br>Выберите марку и модель слева — проверю совместимость. Или просто напишите, что нужно 🙂</div>
     <div class="msg-time">${nowTime()}</div>
   </div>`;
   msgs.appendChild(d);
@@ -1005,7 +1005,7 @@ function resetChat() {
   clearTimeout(proactiveTimer);
   proactiveTimer = setTimeout(() => {
     if (dialogCount === 0) {
-      addMsg('bot', 'Кстати, если не знаешь артикул — просто напиши марку авто и что нужно. Подберём сами 🙂');
+      addMsg('bot', 'Кстати, если не знаете артикул — просто напишите марку авто и что нужно. Подберём сами 🙂');
     }
   }, 10000);
 
@@ -1065,8 +1065,8 @@ async function send() {
         return;
       } else {
         // Марка есть, модель не указана — уточняем только модель
-        addMsg('bot', `Для какой модели ${brand} ищем?`);
-        await showModelPicker(text, `Выбери модель ${brand}:`, brand);
+        addMsg('bot', `Для какой модели ${brand} подбираем?`);
+        await showModelPicker(text, `Выберите модель ${brand}:`, brand);
         return;
       }
     }
