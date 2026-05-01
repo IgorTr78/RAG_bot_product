@@ -576,6 +576,15 @@ let awaitingModel   = false;
 let lastTopic       = '';
 let dialogCount     = 0; // кол-во обменов для триггера оценки
 
+// История диалога для передачи в GPT (последние 20 сообщений)
+let chatHistory = [];
+const HISTORY_LIMIT = 20;
+
+function pushHistory(role, content) {
+  chatHistory.push({ role, content });
+  if (chatHistory.length > HISTORY_LIMIT) chatHistory.splice(0, chatHistory.length - HISTORY_LIMIT);
+}
+
 // ── Proactive message (10s after open if no activity) ──
 let proactiveTimer = setTimeout(() => {
   if (dialogCount === 0) {
@@ -969,7 +978,7 @@ function resetChat() {
   // Reset state
   car = null; pendingQuery = null;
   awaitingContact = false; awaitingModel = false;
-  lastTopic = ''; dialogCount = 0;
+  lastTopic = ''; dialogCount = 0; chatHistory = [];
 
   // Reset sidebar
   sbClearCar();
@@ -1051,14 +1060,35 @@ async function send() {
 
 async function sendToApi(text) {
   addTyping(); btnSnd.disabled = true;
+
+  // Добавляем сообщение пользователя в историю ДО запроса
+  pushHistory('user', text);
+
   try {
     const res  = await fetch('/chat', {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ message: text, car })
+      body: JSON.stringify({
+        message: text,
+        car,
+        // Передаём историю без последнего пользовательского сообщения
+        // (оно уже есть в поле message)
+        history: chatHistory.slice(0, -1)
+      })
     });
     const data = await res.json();
     rmTyping();
-    const answer = res.ok ? data.answer : ('⚠️ ' + (data.detail||'Ошибка сервера'));
+
+    let answer;
+    if (res.status === 429) {
+      answer = '⏳ Слишком много запросов — подожди минуту и попробуй ещё раз.';
+    } else if (!res.ok) {
+      answer = '⚠️ ' + (data.detail || 'Ошибка сервера');
+    } else {
+      answer = data.answer;
+      // Добавляем ответ ассистента в историю
+      pushHistory('assistant', answer);
+    }
+
     addMsg('bot', answer);
     saveHistory();
 
@@ -1072,7 +1102,9 @@ async function sendToApi(text) {
     }
   } catch {
     rmTyping();
-    addMsg('bot', '⚠️ Нет связи с сервером. Попробуй чуть позже.');
+    // Убираем последнее сообщение из истории если запрос не удался
+    chatHistory.pop();
+    addMsg('bot', '🔌 Нет связи с сервером — проверь подключение и попробуй ещё раз.');
   }
   btnSnd.disabled = false; inp.focus();
 }
